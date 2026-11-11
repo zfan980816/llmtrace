@@ -72,7 +72,9 @@ def _readable_name(run):
     """根 trace 的可读名：LangGraph/ChatOpenAI 这类框架内部名没业务含义，
     从 inputs 里挖第一条人类消息或主要文本字段（LangSmith 同款体验）。"""
     name = str(run.get("name") or "")
-    if name.lower() not in _GENERIC_ROOT_NAMES:
+    is_llm_root = str(run.get("run_type") or "") in ("llm", "chat_model")
+    if name.lower() not in _GENERIC_ROOT_NAMES and not is_llm_root:
+        # chain 根按名单判定；llm 根（ChatOpenAI 等模型类名）一律尝试挖可读文本
         return name
     ins = run.get("inputs") if isinstance(run.get("inputs"), dict) else {}
     for k in ("user_message", "query", "question", "input", "prompt", "task", "message"):

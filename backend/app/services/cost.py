@@ -11,6 +11,7 @@ PRICING = {
     "claude-sonnet-4": (3.00, 15.00),
     "claude-haiku-4": (0.80, 4.00),
     "deepseek-chat": (0.27, 1.10),
+    "deepseek-flash": (0.27, 1.10),  # 近似按 chat 档（官方未单列时兜底）
     "deepseek-reasoner": (0.55, 2.19),
     "qwen-plus": (0.40, 1.20),
     "qwen-turbo": (0.05, 0.20),
