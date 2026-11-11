@@ -100,7 +100,7 @@ const DICT = {
   "detail.backToList": ["← 返回列表", "← Back to list"],
   "detail.session": ["会话", "Session"],
   "tab.feedback": ["Feedback", "Feedback"],
-  "tab.input": ["Input", "Input"],
+  "tab.input": ["对话", "Chat"],
   "tab.output": ["Output", "Output"],
   "tab.raw": ["Raw JSON", "Raw JSON"],
   "fb.accurate": ["👍 准确", "👍 Accurate"],
