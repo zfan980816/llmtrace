@@ -84,6 +84,14 @@ project with three representative traces, so the UI is alive out of the box.
 pip install llmtrace-sdk
 ```
 
+Don't have an app to instrument yet? Send a sample trace and see the UI working:
+
+```bash
+llmtrace demo --url http://localhost:8000 --key <project-api-key>
+```
+
+Then instrument real calls with one line:
+
 ```python
 from openai import OpenAI
 from llmtrace import wrap_openai

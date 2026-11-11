@@ -47,15 +47,27 @@ Python SDK ──异步上报──▶ FastAPI ──▶ PostgreSQL
 
 ```bash
 git clone https://github.com/zfan980816/llmtrace.git && cd llmtrace
-cp .env.example .env        # 按需修改 JWT_SECRET / SEED_DEMO / 飞书 SSO
+cp .env.example .env        # 按需修改 JWT_SECRET（SEED_DEMO=true 可注入示例数据）
 docker compose up -d --build
 ```
 
-打开 http://localhost:8000 ，默认管理员 **admin / admin123**（登录后请立即修改密码）。
+打开 http://localhost:8000 ，默认管理员 **admin / admin123**，首次登录会强制设置新密码。
 
 - 首次启动自动执行数据库迁移（`alembic upgrade head`）
 - `SEED_DEMO=true`（默认）时自动注入 demo 项目与三条示例 trace，开箱即可体验完整界面
 - 生产环境务必修改 JWT_SECRET，并可将 `SEED_DEMO=false`
+
+### 接入应用
+
+```bash
+pip install llmtrace-sdk
+```
+
+还没有要接入的应用？先发一条测试 trace 看看 UI：
+
+```bash
+llmtrace demo --url http://localhost:8000 --key <项目 API Key>
+```
 
 ### 方式二：本地开发
 
