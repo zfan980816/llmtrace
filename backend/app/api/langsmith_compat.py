@@ -70,26 +70,23 @@ _GENERIC_ROOT_NAMES = {"langgraph", "langchain", "chain", "agent", "agentexecuto
 
 
 def _short_label(text, cap=20):
-    """从长文本提取一个适合列表展示的语义短名：
-    取第一句（句末标点切分）；「键：值 键：值」形态取首个键值对；
-    超长时丢弃括号插入语、在逗号边界收尾——保证名字读起来是完整语义，不是硬截断。"""
+    """提取「领域名」做列表展示：
+    「景点地址：上海 酒店地址：…」→ 冒号前主语「景点地址」；
+    无冒号取首个逗号短句「北京出发去上海玩3天」——都是领域主语，不是句子片段。"""
     s = re.sub(r"\s+", " ", str(text)).strip()
     if not s:
         return ""
     seg = re.split(r"[。！？!?；;\n]", s)[0].strip() or s
-    if "：" in seg:  # 「景点地址：上海 酒店地址：…」→ 取首个「键：值」
-        head, *rest = seg.split("：")
-        if rest:
-            cand = f"{head}：{rest[0].split(' ')[0]}"
-            if 4 <= len(cand) <= cap:
-                seg = cand
+    colons = [i for i in (seg.find("："), seg.find(":")) if i >= 0]
+    if colons:  # 「键：值 …」→ 领域名 = 冒号前的主语
+        key = seg[:min(colons)].strip()
+        if 2 <= len(key) <= 12:
+            return key
+    first = re.split(r"[，,、]", seg)[0].strip()
+    if len(first) >= 4:
+        seg = first  # 首个逗号短句即领域主语
     if len(seg) > cap:
-        stripped = re.sub(r"（[^）]*）|\([^)]*\)", "", seg).strip()  # 丢括号插入语
-        seg = stripped or seg
-    if len(seg) > cap:
-        cut = seg[:cap]
-        best = max((cut.rfind(sep) for sep in ("，", "、", ",")), default=-1)
-        seg = cut[:best] if best >= 8 else cut + "…"
+        seg = seg[:cap] + "…"
     return seg
 
 
