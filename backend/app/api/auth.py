@@ -1,3 +1,5 @@
+import hashlib
+import re
 import secrets
 import threading
 import time
@@ -10,9 +12,10 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..config import settings
 from ..models import AuditLog, User
-from ..schemas import AuditLogOut, LoginIn, UserCreate, UserOut, UserUpdate
+from ..schemas import AuditLogOut, EmailCodeIn, EmailLoginIn, LoginIn, UserCreate, UserOut, UserUpdate
 from ..services import sso as sso_registry
 from ..services.audit import record_audit
+from ..services.email import send_email_code
 from ..services.security import (
     create_token,
     get_current_user,
@@ -50,6 +53,69 @@ def _check_rate(key: str) -> None:
 def _record_fail(key: str) -> None:
     with _fails_lock:
         _login_fails.setdefault(key, []).append(time.monotonic())
+
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_CODE_TTL = 600  # 验证码 10 分钟
+_email_codes: dict[str, tuple[str, float]] = {}  # email -> (sha256, expiry)
+_codes_lock = threading.Lock()
+
+
+def _hash_code(c: str) -> str:
+    return hashlib.sha256(c.encode()).hexdigest()
+
+
+@router.post("/email-code")
+def email_code(payload: EmailCodeIn, request: Request, db: Session = Depends(get_db)):
+    """发送邮箱验证码。同邮箱 60s 一条；SMTP 未配置时内网试用模式直接返回 dev_code。"""
+    email = payload.email.strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=422, detail="邮箱格式不正确")
+    _check_rate("emailcode:" + email + "|" + _client_ip(request))
+    code = f"{secrets.randbelow(1000000):06d}"
+    with _codes_lock:
+        _email_codes[email] = (_hash_code(code), time.monotonic() + _CODE_TTL)
+    sent = send_email_code(email, code)
+    if not sent:
+        return {"sent": True, "dev_code": code}  # 内网试用：SMTP 未配置时直接显示验证码
+    return {"sent": True}
+
+
+@router.post("/email-login")
+def email_login(payload: EmailLoginIn, request: Request, db: Session = Depends(get_db)):
+    """邮箱 + 验证码登录：新邮箱自动注册为 viewer（可查看监控），管理员可提权。"""
+    email = payload.email.strip().lower()
+    key = "emaillogin:" + email + "|" + _client_ip(request)
+    _check_rate(key)
+    with _codes_lock:
+        entry = _email_codes.get(email)
+        ok = bool(entry and entry[1] > time.monotonic()
+                  and secrets.compare_digest(entry[0], _hash_code(payload.code.strip())))
+        if ok:
+            _email_codes.pop(email, None)
+    if not ok:
+        _record_fail(key)
+        raise HTTPException(status_code=401, detail="验证码错误或已过期")
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        user = db.query(User).filter(User.username == email).first()
+        if user is not None and not user.email:
+            user.email = email
+    if user is None:
+        local = email.split("@")[0][:40] or "user"
+        username = local
+        if db.query(User).filter(User.username == username).first() is not None:
+            username = f"{local}-{secrets.token_hex(2)}"
+        user = User(username=username, display_name=local[:30], email=email,
+                    role=settings.email_default_role, password_hash="", is_active=True)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="账号已停用")
+    with _fails_lock:
+        _login_fails.pop(key, None)
+    return {"token": create_token(user), "user": UserOut.model_validate(user)}
 
 
 @router.get("/config")

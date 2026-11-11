@@ -99769,3 +99769,10 @@ html[data-theme="light"] .stat-card:hover {
 /* 空态图标更柔和 */
 .empty { color: var(--text-3); }
 .empty svg { opacity: 0.55; }
+
+/* email code login */
+.login-card .code-row { display: flex; gap: 8px; }
+.login-card .code-row input { flex: 1; letter-spacing: 4px; }
+.login-card .code-row .btn-outline { white-space: nowrap; }
+.login-card .link-btn { background: none; border: none; color: var(--text-2, #6b7280); font-size: 12px; cursor: pointer; padding: 2px; }
+.login-card .link-btn:hover { color: var(--text); }

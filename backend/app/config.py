@@ -37,6 +37,13 @@ class Settings(BaseSettings):
     sso_github_client_secret: str = ""
     # SSO 新用户默认角色
     sso_default_role: str = "member"
+    # ---- 邮箱验证码登录（SMTP）----
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""           # 发件人地址，如 llmtrace@corp.com
+    email_default_role: str = "viewer"  # 新邮箱首次登录的默认角色（可看监控）
 
 
 settings = Settings()

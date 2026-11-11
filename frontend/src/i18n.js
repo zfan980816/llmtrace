@@ -20,6 +20,13 @@ const DICT = {
 
   // ---- 登录 ----
   "login.subtitle": ["LLM 监控平台 · 团队登录", "LLM Observability · Team sign-in"],
+  "login.useEmail": ["使用邮箱验证码登录", "Log in with email code"],
+  "login.usePassword": ["使用密码登录", "Log in with password"],
+  "login.email": ["邮箱", "Email"],
+  "login.code": ["验证码", "Verification code"],
+  "login.sendCode": ["发送验证码", "Send code"],
+  "login.codeSent": ["验证码已发送，请查收邮件", "Code sent, check your inbox"],
+  "login.emailNote": ["首次登录自动创建账号，默认可查看监控", "First login creates an account with view access"],
   "login.username": ["用户名", "Username"],
   "login.password": ["密码", "Password"],
   "login.submit": ["登录", "Sign in"],

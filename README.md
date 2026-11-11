@@ -2,9 +2,7 @@
 
 # LLMTrace
 
-**Self-hosted LLM observability — a lightweight LangSmith alternative.**
-
-Trace every LLM call. See every input & output. Alert when things break.
+Self-hosted tracing and monitoring for LLM applications.
 
 [![CI](https://github.com/zfan980816/llmtrace/actions/workflows/ci.yml/badge.svg)](../../actions)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
@@ -33,14 +31,14 @@ Python SDK ──async ingest──▶ FastAPI ──▶ PostgreSQL / SQLite
 
 ## Why LLMTrace
 
-- **See everything** — full prompts, completions and tool calls rendered as
-  chat bubbles with Markdown, not truncated JSON
-- **Lightweight** — single container, runs on SQLite for trials, PostgreSQL for production
-- **LangSmith-style UI** — Threads / Traces / Runs views, span waterfall tree,
-  latency heat badges, feedback 👍/👎
-- **Data stays yours** — self-hosted; no prompts leave your network
-- **China-native SSO & alerting** — Feishu login + Feishu/DingTalk/WeCom webhook alerts
-- **One-line SDK** — `wrap_openai(client)`, that's it
+- Full prompts, completions and tool calls, rendered as chat bubbles instead
+  of raw JSON dumps
+- Single container. SQLite for trials, PostgreSQL for production
+- Traces / Threads / Runs views, span tree, latency and token badges,
+  feedback (up/down)
+- Self-hosted: prompts never leave your network
+- Feishu SSO login, Feishu / DingTalk / WeCom webhook alerts
+- One-line SDK: `llmtrace.wrap_openai(client)`
 
 ## Features
 
@@ -52,7 +50,7 @@ Python SDK ──async ingest──▶ FastAPI ──▶ PostgreSQL / SQLite
 | Alerting | Threshold rules (error rate / latency), webhook (JSON / Feishu / DingTalk / WeCom + HMAC), cooldown |
 | Auth | Password login, Feishu SSO, generic OIDC, GitHub OAuth; admin/member/viewer RBAC |
 | SDK | `wrap_openai` / `wrap_anthropic` (streaming), `@trace`/`@span` decorators, batch + disk buffer, PII masking |
-| LangSmith-compatible | **Zero-code drop-in** — point LangChain's built-in tracer at LLMTrace via `LANGSMITH_*` env vars (`/runs/batch`, `/runs/multipart` ingested natively) |
+| LangSmith-compatible | LangChain's built-in tracer works against LLMTrace via `LANGSMITH_*` env vars, no code changes |
 | OpenTelemetry | OTLP/HTTP(JSON) ingestion (`/api/v1/otel/v1/traces`) — GenAI & OpenInference conventions mapped automatically |
 | Ops | Alembic migrations, data retention per project, CSV/JSON export, audit logs, demo seeding |
 

@@ -235,6 +235,15 @@ class SessionOut(BaseModel):
     last_seen: datetime
 
 
+class EmailCodeIn(BaseModel):
+    email: str
+
+
+class EmailLoginIn(BaseModel):
+    email: str
+    code: str
+
+
 class LoginIn(BaseModel):
     username: str
     password: str
@@ -260,6 +269,7 @@ class UserOut(BaseModel):
     id: UUID
     username: str
     display_name: str
+    email: str | None = None
     role: str
     is_active: bool
     sso_provider: Optional[str] = None

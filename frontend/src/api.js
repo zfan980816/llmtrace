@@ -37,6 +37,16 @@ export async function login(username, password) {
   return data.user;
 }
 
+export async function requestEmailCode(email) {
+  return (await authApi.post("/auth/email-code", { email })).data;
+}
+
+export async function emailLogin(email, code) {
+  const { data } = await authApi.post("/auth/email-login", { email, code });
+  localStorage.setItem("llmtrace_token", data.token);
+  return data.user;
+}
+
 export async function fetchMe() {
   const { data } = await authApi.get("/auth/me");
   return data;
