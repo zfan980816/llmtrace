@@ -1476,7 +1476,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -3019,7 +3021,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -4573,7 +4577,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -6116,7 +6122,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -7688,7 +7696,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -9231,7 +9241,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -10785,7 +10797,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -12328,7 +12342,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -13909,7 +13925,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -15452,7 +15470,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -17006,7 +17026,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -18549,7 +18571,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -20121,7 +20145,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -21664,7 +21690,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -23218,7 +23246,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -24761,7 +24791,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -26362,7 +26394,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -27905,7 +27939,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -29459,7 +29495,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -31002,7 +31040,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -32574,7 +32614,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -34117,7 +34159,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -35671,7 +35715,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -37214,7 +37260,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -38795,7 +38843,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -40338,7 +40388,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -41892,7 +41944,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -43435,7 +43489,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -45007,7 +45063,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -46550,7 +46608,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -48104,7 +48164,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -49647,7 +49709,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -51253,7 +51317,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -52796,7 +52862,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -54350,7 +54418,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -55893,7 +55963,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -57465,7 +57537,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -59008,7 +59082,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -60562,7 +60638,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -62105,7 +62183,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -63686,7 +63766,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -65229,7 +65311,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -66783,7 +66867,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -68326,7 +68412,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -69898,7 +69986,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -71441,7 +71531,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -72995,7 +73087,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -74538,7 +74632,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -76139,7 +76235,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -77682,7 +77780,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -79236,7 +79336,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -80779,7 +80881,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -82351,7 +82455,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -83894,7 +84000,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -85448,7 +85556,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -86991,7 +87101,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -88572,7 +88684,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -90115,7 +90229,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -91669,7 +91785,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -93212,7 +93330,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -94784,7 +94904,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -96327,7 +96449,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -97881,7 +98005,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
@@ -99424,7 +99550,9 @@ html[data-theme="light"] .json-pre .j-b { color: #8250df; }
 }
 
 /* ===== LangSmith 式 Trace 展示 ===== */
-.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+.traces-table th { white-space: nowrap; }
+.traces-table td { white-space: nowrap; }
+.traces-table .io-preview { color: var(--text-2); font-size: 12px; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .io-error { color: #f87171; font-size: 12px; display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
 .traces-table .trace-name-link { font-weight: 500; display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
