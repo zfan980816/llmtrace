@@ -6,14 +6,12 @@ import time
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..config import settings
 from ..models import AuditLog, User
 from ..schemas import AuditLogOut, EmailCodeIn, EmailLoginIn, LoginIn, UserCreate, UserOut, UserUpdate
-from ..services import sso as sso_registry
 from ..services.audit import record_audit
 from ..services.email import send_email_code
 from ..services.security import (
@@ -118,88 +116,6 @@ def email_login(payload: EmailLoginIn, request: Request, db: Session = Depends(g
     return {"token": create_token(user), "user": UserOut.model_validate(user)}
 
 
-@router.get("/config")
-def auth_config():
-    """登录页公开配置：可用 SSO provider 列表（不含任何机密）。"""
-    return {"feishu_enabled": sso_registry.get_provider("feishu").is_configured(),
-            "providers": sso_registry.configured_providers()}
-
-
-@router.get("/sso/{provider}/login")
-def sso_login(provider: str, request: Request):
-    """跳转 SSO 授权页（state cookie 防 CSRF）。"""
-    mod = sso_registry.get_provider(provider)
-    if mod is None or not mod.is_configured():
-        raise HTTPException(status_code=404, detail="SSO provider 未配置")
-    state = secrets.token_urlsafe(16)
-    redirect_uri = mod.redirect_uri(request)
-    resp = RedirectResponse(mod.authorize_url(state, redirect_uri))
-    resp.set_cookie("llmtrace_sso", f"{provider}|{state}", max_age=600,
-                    httponly=True, samesite="lax")
-    return resp
-
-
-@router.get("/sso/{provider}/callback")
-def sso_callback(
-    provider: str,
-    request: Request,
-    code: str | None = None,
-    state: str | None = None,
-    db: Session = Depends(get_db),
-):
-    """SSO 回调：验 state → 换用户信息 → 建/匹配账号 → 签发 JWT 回前端。"""
-    mod = sso_registry.get_provider(provider)
-    if mod is None or not mod.is_configured():
-        raise HTTPException(status_code=404, detail="SSO provider 未配置")
-    cookie = request.cookies.get("llmtrace_sso") or ""
-    cookie_provider, _, cookie_state = cookie.partition("|")
-    if not code or not state or not cookie_state or cookie_provider != provider or state != cookie_state:
-        raise HTTPException(status_code=400, detail="state 校验失败，请重新发起登录")
-    try:
-        profile = mod.exchange(code, mod.redirect_uri(request))
-    except sso_registry.SSOError as exc:
-        raise HTTPException(status_code=502, detail="SSO 登录失败：" + str(exc))
-    except Exception as exc:  # 网络/上游异常
-        raise HTTPException(status_code=502, detail="SSO 登录失败：" + str(exc))
-
-    subject = profile.get("subject")
-    if not subject:
-        raise HTTPException(status_code=502, detail="SSO 未返回用户标识")
-
-    user = db.query(User).filter(
-        User.sso_provider == provider, User.sso_subject == subject).first()
-    is_new = False
-    if user is None:
-        username = profile.get("email") or f"{provider}_{subject[:16]}"
-        base_username = username
-        while db.query(User).filter(User.username == username).first() is not None:
-            username = base_username + "_" + secrets.token_hex(2)
-        user = User(
-            username=username,
-            display_name=profile.get("name") or username,
-            role=settings.sso_default_role,
-            password_hash=hash_password(secrets.token_urlsafe(24)),
-            is_active=True,
-            sso_provider=provider,
-            sso_subject=subject,
-            avatar_url=profile.get("avatar"),
-        )
-        db.add(user)
-        is_new = True
-    if not user.is_active:
-        raise HTTPException(status_code=403, detail="账号已被停用")
-    user.avatar_url = profile.get("avatar") or user.avatar_url
-    db.commit()
-    db.refresh(user)
-    if is_new:
-        record_audit(db, user, "user.create", user.username,
-                     {"via": "sso:" + provider, "role": user.role})
-        db.commit()
-    token = create_token(user)
-    sep = "&" if "?" in settings.frontend_url else "?"
-    resp = RedirectResponse(settings.frontend_url + sep + "token=" + token)
-    resp.delete_cookie("llmtrace_sso")
-    return resp
 
 
 @router.post("/login")

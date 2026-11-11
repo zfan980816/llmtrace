@@ -21,10 +21,6 @@ services:
       DATABASE_URL: postgresql+psycopg://llmtrace:llmtrace@db:5432/llmtrace
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production-with-a-long-random-string}
       SEED_DEMO: ${SEED_DEMO:-true}
-      FEISHU_APP_ID: ${FEISHU_APP_ID:-}
-      FEISHU_APP_SECRET: ${FEISHU_APP_SECRET:-}
-      FEISHU_REDIRECT_URI: ${FEISHU_REDIRECT_URI:-}
-      FEISHU_DEFAULT_ROLE: ${FEISHU_DEFAULT_ROLE:-member}
     ports:
       - "8000:8000"
     depends_on:

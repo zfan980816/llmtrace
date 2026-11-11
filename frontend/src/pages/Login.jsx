@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { authConfig, emailLogin, fetchMe, login, requestEmailCode, setToken } from "../api";
+import { emailLogin, fetchMe, login, requestEmailCode, setToken } from "../api";
 import Icon from "../components/Icon";
 import { t, useLang } from "../i18n";
 
@@ -16,7 +16,6 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [providers, setProviders] = useState([]);
 
   useEffect(() => {
     const qp = new URLSearchParams(window.location.search);
@@ -27,7 +26,6 @@ export default function Login({ onLogin }) {
       window.history.replaceState({}, "", window.location.pathname);
       return;
     }
-    authConfig().then((c) => setProviders(c.providers || [])).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -119,24 +117,6 @@ export default function Login({ onLogin }) {
           </>
         )}
 
-        {providers.length > 0 && (
-          <>
-            <div className="login-divider"><span>{t("login.or")}</span></div>
-            {providers.map((pr) => (
-              <button key={pr.name} type="button" className="btn btn-outline feishu-btn"
-                onClick={() => { window.location.href = "/api/auth/sso/" + pr.name + "/login"; }}>
-                {pr.name === "feishu" ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M3.9 8.7h7.3l-2.4 4.6h4.9L6.9 23l1.6-6.4H3.6L6 8.7H3.9zm8.6-6h6.6l-2.2 4.1h4.1L9.8 21.9l2.4-7.2H8.1l2.6-5.3H8.7l3.8-6.7z"/>
-                  </svg>
-                ) : (
-                  <Icon name="user" size={14} />
-                )}
-                {pr.label}
-              </button>
-            ))}
-          </>
-        )}
         <p className="login-hint">{t("login.hint")}</p>
       </form>
     </div>

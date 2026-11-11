@@ -18,25 +18,6 @@ class Settings(BaseSettings):
     static_dir: str = str(_REPO_ROOT / "frontend" / "dist")
     # production=true 时：使用默认 JWT_SECRET 将拒绝启动（防止密钥泄漏进生产）
     production: bool = False
-    # ---- SSO 登录（全部可选；未配置的 provider 登录页自动隐藏）----
-    # 飞书（开放平台企业自建应用）
-    feishu_app_id: str = ""
-    feishu_app_secret: str = ""
-    feishu_redirect_uri: str = ""      # 留空则按当前请求自动推导
-    # 通用 OIDC（Google / Keycloak / 阿里云 IDaaS / Okta 等）
-    sso_oidc_issuer: str = ""          # 如 https://accounts.google.com
-    sso_oidc_client_id: str = ""
-    sso_oidc_client_secret: str = ""
-    sso_oidc_scope: str = "openid profile email"
-    # 端点留空则按 issuer + 标准路径推导
-    sso_oidc_auth_endpoint: str = ""
-    sso_oidc_token_endpoint: str = ""
-    sso_oidc_userinfo_endpoint: str = ""
-    # GitHub OAuth App
-    sso_github_client_id: str = ""
-    sso_github_client_secret: str = ""
-    # SSO 新用户默认角色
-    sso_default_role: str = "member"
     # ---- 邮箱验证码登录（SMTP）----
     smtp_host: str = ""
     smtp_port: int = 587

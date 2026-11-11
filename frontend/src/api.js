@@ -56,10 +56,6 @@ export function logout() {
   localStorage.removeItem("llmtrace_token");
 }
 
-export async function authConfig() {
-  return (await authApi.get("/auth/config")).data;
-}
-
 export async function adminListUsers() {
   return (await authApi.get("/auth/users")).data;
 }
