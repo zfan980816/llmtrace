@@ -6,6 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..api.deps import team_projects
 from ..models import Trace, User
 from ..schemas import SessionOut, TraceListItem
 from ..services.security import get_current_user
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
 @router.get("", response_model=list[SessionOut])
 def list_sessions(
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     limit: int = 50,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -23,6 +25,8 @@ def list_sessions(
     filters = [Trace.session_id.isnot(None)]
     if project_id:
         filters.append(Trace.project_id == project_id)
+    if allowed is not None:
+        filters.append(Trace.project_id.in_(allowed))
     rows = (
         db.query(
             Trace.session_id.label("session_id"),
@@ -55,12 +59,15 @@ def list_sessions(
 def session_traces(
     session_id: str,
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     filters = [Trace.session_id == session_id]
     if project_id:
         filters.append(Trace.project_id == project_id)
+    if allowed is not None:
+        filters.append(Trace.project_id.in_(allowed))
     return (
         db.query(Trace)
         .filter(*filters)

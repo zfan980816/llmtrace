@@ -99776,3 +99776,7 @@ html[data-theme="light"] .stat-card:hover {
 .login-card .code-row .btn-outline { white-space: nowrap; }
 .login-card .link-btn { background: none; border: none; color: var(--text-2, #6b7280); font-size: 12px; cursor: pointer; padding: 2px; }
 .login-card .link-btn:hover { color: var(--text); }
+
+/* team onboarding */
+.team-banner { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; border: 1px dashed var(--border); border-radius: 10px; margin-bottom: 4px; font-size: 13px; color: var(--text-2, #6b7280); }
+

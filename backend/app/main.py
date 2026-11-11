@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .api import alerts, auth, langsmith_compat, metrics, otel, projects, sessions, traces, feedback
+from .api import alerts, auth, langsmith_compat, metrics, otel, projects, sessions, teams, traces, feedback
 from .services.ws import router as ws_router
 from .config import settings
 from .database import Base, SessionLocal, engine
@@ -33,6 +33,7 @@ app.include_router(alerts.router)
 app.include_router(feedback.router)
 app.include_router(otel.router)
 app.include_router(langsmith_compat.router)  # LangSmith 兼容端点：LangChain tracer 零代码直连
+app.include_router(teams.router)
 app.include_router(ws_router)
 
 

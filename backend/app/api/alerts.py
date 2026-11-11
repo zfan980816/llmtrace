@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..api.deps import team_projects
 from ..models import AlertEvent, AlertRule, Project, User
 from ..schemas import AlertEventOut, AlertRuleCreate, AlertRuleOut, AlertRuleUpdate
 from ..services.alerting import WEBHOOK_FORMATS, evaluate_rules
@@ -50,12 +51,15 @@ def create_rule(
 @router.get("/rules", response_model=list[AlertRuleOut])
 def list_rules(
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     q = db.query(AlertRule)
     if project_id:
         q = q.filter(AlertRule.project_id == project_id)
+    if allowed is not None:
+        q = q.filter(AlertRule.project_id.in_(allowed))
     return q.order_by(AlertRule.created_at).all()
 
 
@@ -97,6 +101,7 @@ def delete_rule(
 @router.get("/events", response_model=list[AlertEventOut])
 def list_events(
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     limit: int = 50,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -104,12 +109,15 @@ def list_events(
     q = db.query(AlertEvent)
     if project_id:
         q = q.filter(AlertEvent.project_id == project_id)
+    if allowed is not None:
+        q = q.filter(AlertEvent.project_id.in_(allowed))
     return q.order_by(AlertEvent.created_at.desc()).limit(min(limit, 200)).all()
 
 
 @router.post("/evaluate", response_model=list[AlertEventOut])
 def evaluate(
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     member: User = Depends(require_member),
     db: Session = Depends(get_db),
 ):

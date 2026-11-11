@@ -21,6 +21,7 @@ class User(Base):
     email: Mapped[str | None] = mapped_column(String(120), nullable=True, unique=True, index=True)
     display_name: Mapped[str] = mapped_column(String(100), default="")
     role: Mapped[str] = mapped_column(String(20), default="viewer")  # admin | member | viewer
+    team_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("teams.id"), nullable=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(200))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     sso_provider: Mapped[str | None] = mapped_column(String(32), nullable=True)
@@ -29,11 +30,22 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     __table_args__ = (Index("ix_user_sso", "sso_provider", "sso_subject", unique=True),)
 
+class Team(Base):
+    __tablename__ = "teams"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(100))
+    invite_code: Mapped[str] = mapped_column(String(16), unique=True, index=True)
+    created_by: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
 class Project(Base):
     __tablename__ = "projects"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(100), unique=True)
+    team_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("teams.id"), nullable=True, index=True)
     api_key: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     mask_pii: Mapped[bool] = mapped_column(Boolean, default=False)
     retention_days: Mapped[int] = mapped_column(Integer, default=30)  # 0 = 永久保留

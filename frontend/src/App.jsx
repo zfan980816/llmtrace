@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
-import api, { createProject, ensureProject, fetchMe, logout, onProjectChange, setToken, switchProject } from "./api";
+import api, { createProject, ensureProject, fetchMe, logout, onProjectChange, resetProject, setToken, switchProject } from "./api";
 import { AuthContext } from "./auth";
 import Icon from "./components/Icon";
 import { t, setLang, useLang } from "./i18n";
@@ -12,6 +12,7 @@ import Sessions from "./pages/Sessions";
 import TraceDetail from "./pages/TraceDetail";
 import Traces from "./pages/Traces";
 import Users from "./pages/Users";
+import TeamGate from "./pages/TeamGate";
 
 const ROLE_LABELS = { admin: "role.admin", member: "role.member", viewer: "role.viewer" };
 
@@ -93,9 +94,30 @@ export default function App() {
     return <Login onLogin={setUser} />;
   }
 
+  // 未加入任何团队：先创建或加入团队，之后才能看到监控数据
+  if (user.team_id == null) {
+    return (
+      <AuthContext.Provider value={{ user, setUser }}>
+        <TeamGate onDone={async () => {
+          resetProject();
+          const me = await fetchMe().catch(() => null);
+          if (me) setUser(me);
+        }} />
+      </AuthContext.Provider>
+    );
+  }
+
+  const noProjects = user.role !== "admin" && projects.length === 0;
+
   return (
     <AuthContext.Provider value={{ user, setUser }}>
       <div className="layout">
+        {noProjects && (
+          <div className="team-banner">
+            <span>你的团队还没有监控项目。创建一个项目，用生成的 API Key 接入你的应用。</span>
+            <button className="btn" onClick={onNew}>创建项目</button>
+          </div>
+        )}
         <aside className="sidebar">
           <div className="logo">
             <span className="logo-mark"><Icon name="radar" size={16} /></span>

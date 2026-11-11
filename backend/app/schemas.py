@@ -13,6 +13,8 @@ class ProjectCreate(BaseModel):
 
 class ProjectOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+    team_id: UUID | None = None
+
 
     id: UUID
     name: str
@@ -235,6 +237,14 @@ class SessionOut(BaseModel):
     last_seen: datetime
 
 
+class TeamCreate(BaseModel):
+    name: str
+
+
+class TeamJoinIn(BaseModel):
+    invite_code: str
+
+
 class EmailCodeIn(BaseModel):
     email: str
 
@@ -271,6 +281,7 @@ class UserOut(BaseModel):
     display_name: str
     email: str | None = None
     role: str
+    team_id: UUID | None = None
     is_active: bool
     sso_provider: Optional[str] = None
     sso_subject: Optional[str] = None

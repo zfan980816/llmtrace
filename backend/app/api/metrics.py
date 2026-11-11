@@ -6,6 +6,7 @@ from sqlalchemy import case, func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..api.deps import team_projects
 from ..models import Span, Trace, User
 from ..schemas import ErrorClusterOut, HistogramBucket, ModelStatOut, OverviewOut, TimePoint
 from ..services.security import get_current_user
@@ -21,6 +22,7 @@ def _as_utc(dt):
 def overview(
     hours: int = Query(24, ge=1, le=720),
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -28,6 +30,8 @@ def overview(
     filters = [Trace.start_time >= since]
     if project_id:
         filters.append(Trace.project_id == project_id)
+    if allowed is not None:
+        filters.append(Trace.project_id.in_(allowed))
     base = tuple(filters)
 
     row = db.query(
@@ -68,6 +72,7 @@ def overview(
 def timeseries(
     hours: int = Query(24, ge=1, le=720),
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -81,6 +86,8 @@ def timeseries(
     filters = [Trace.start_time >= since]
     if project_id:
         filters.append(Trace.project_id == project_id)
+    if allowed is not None:
+        filters.append(Trace.project_id.in_(allowed))
 
     rows = db.query(
         bucket,
@@ -116,6 +123,7 @@ def timeseries(
 def model_stats(
     hours: int = Query(24, ge=1, le=720),
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -124,6 +132,8 @@ def model_stats(
     filters = [Span.span_type == "llm", Span.start_time >= since]
     if project_id:
         filters.append(Trace.project_id == project_id)
+    if allowed is not None:
+        filters.append(Trace.project_id.in_(allowed))
     rows = (
         db.query(
             Span.model.label("model"),
@@ -159,6 +169,7 @@ def latency_histogram(
     hours: int = Query(24, ge=1, le=720),
     buckets: int = Query(20, ge=5, le=60),
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -167,6 +178,8 @@ def latency_histogram(
     filters = [Trace.start_time >= since]
     if project_id:
         filters.append(Trace.project_id == project_id)
+    if allowed is not None:
+        filters.append(Trace.project_id.in_(allowed))
     vals = [v for (v,) in db.query(Trace.latency_ms).filter(*filters).limit(20000).all() if v is not None]
     if not vals:
         return []
@@ -186,6 +199,7 @@ def latency_histogram(
 def error_clusters(
     hours: int = Query(24, ge=1, le=720),
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     top: int = Query(10, ge=1, le=50),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -195,6 +209,8 @@ def error_clusters(
     q = db.query(Trace).filter(Trace.status == "error", Trace.start_time >= since)
     if project_id:
         q = q.filter(Trace.project_id == project_id)
+    if allowed is not None:
+        q = q.filter(Trace.project_id.in_(allowed))
     rows = q.order_by(Trace.start_time.desc()).limit(2000).all()
     clusters: dict[str, dict] = {}
     for t in rows:

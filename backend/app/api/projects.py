@@ -22,7 +22,9 @@ def create_project(
     exists = db.query(Project).filter(Project.name == payload.name).first()
     if exists:
         return exists
-    project = Project(name=payload.name, api_key=secrets.token_hex(24))
+    if member.team_id is None:
+        raise HTTPException(status_code=403, detail="请先创建或加入团队")
+    project = Project(name=payload.name, team_id=member.team_id, api_key=secrets.token_hex(24))
     db.add(project)
     db.commit()
     db.refresh(project)
@@ -41,6 +43,8 @@ def rotate_api_key(
     project = db.get(Project, project_id)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
+    if admin.role != "admin" and project.team_id != admin.team_id:
+        raise HTTPException(status_code=403, detail="无权访问其他团队的项目")
     project.api_key = secrets.token_hex(24)
     db.commit()
     db.refresh(project)
@@ -51,7 +55,12 @@ def rotate_api_key(
 
 @router.get("", response_model=list[ProjectOut])
 def list_projects(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    return db.query(Project).order_by(Project.created_at).all()
+    q = db.query(Project)
+    if user.role != "admin":
+        if user.team_id is None:
+            return []
+        q = q.filter(Project.team_id == user.team_id)
+    return q.order_by(Project.created_at).all()
 
 
 @router.patch("/{project_id}", response_model=ProjectOut)
@@ -64,6 +73,8 @@ def update_project(
     project = db.get(Project, project_id)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
+    if admin.role != "admin" and project.team_id != admin.team_id:
+        raise HTTPException(status_code=403, detail="无权访问其他团队的项目")
     changes = payload.model_dump(exclude_unset=True)
     for field, value in changes.items():
         setattr(project, field, value)

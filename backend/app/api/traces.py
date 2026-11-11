@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from .deps import get_project
 from ..database import get_db
+from ..api.deps import team_projects
 from ..models import Project, Span, Trace, User
 from ..schemas import TraceBatchIn, TraceIn, TraceListItem, TraceOut, TracePageOut, RunListItem, RunPageOut
 from ..services.cost import estimate_cost
@@ -124,6 +125,7 @@ def ingest_batch(payload: TraceBatchIn, project: Project = Depends(get_project),
 def export_traces(
     format: str = "csv",
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -134,6 +136,8 @@ def export_traces(
     q = db.query(Trace)
     if project_id:
         q = q.filter(Trace.project_id == project_id)
+    if allowed is not None:
+        q = q.filter(Trace.project_id.in_(allowed))
     traces = q.order_by(Trace.start_time.desc()).limit(5000).all()
 
     cols = ["id", "name", "session_id", "status", "error", "start_time", "end_time",
@@ -167,6 +171,7 @@ def export_traces(
 @router.get("", response_model=TracePageOut)
 def list_traces(
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     status: str | None = None,
     model: str | None = None,
     span_type: str | None = None,
@@ -181,6 +186,8 @@ def list_traces(
     query = db.query(Trace)
     if project_id:
         query = query.filter(Trace.project_id == project_id)
+    if allowed is not None:
+        query = query.filter(Trace.project_id.in_(allowed))
     if status:
         query = query.filter(Trace.status == status)
     if min_latency is not None:
@@ -208,6 +215,7 @@ def list_traces(
 @router.get("/runs", response_model=RunPageOut)
 def list_runs(
     project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
     span_type: str | None = None,
     model: str | None = None,
     q: str | None = None,
@@ -220,6 +228,8 @@ def list_runs(
     query = db.query(Span, Trace).join(Trace, Span.trace_id == Trace.id)
     if project_id is not None:
         query = query.filter(Trace.project_id == project_id)
+    if allowed is not None:
+        query = query.filter(Trace.project_id.in_(allowed))
     if span_type:
         query = query.filter(Span.span_type == span_type)
     if model:

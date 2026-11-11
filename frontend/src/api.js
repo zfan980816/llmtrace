@@ -97,10 +97,27 @@ export async function ensureProject() {
   const { data } = await api.get("/projects");
   const savedId = localStorage.getItem("llmtrace_project_id");
   currentProject = data.find((p) => p.id === savedId) || data[0] || null;
-  if (!currentProject) {
-    currentProject = await createProject("default");
-  }
-  return currentProject;
+  return currentProject;  // 无项目时返回 null，由前端引导创建
+}
+
+export async function resetProject() {
+  currentProject = null;
+  localStorage.removeItem("llmtrace_project_id");
+  notify();
+}
+
+/* ---------- team ---------- */
+export async function getTeam() {
+  return (await authApi.get("/team")).data;
+}
+export async function createTeam(name) {
+  return (await authApi.post("/team", { name })).data;
+}
+export async function joinTeam(inviteCode) {
+  return (await authApi.post("/team/join", { invite_code: inviteCode })).data;
+}
+export async function regenerateInviteCode() {
+  return (await authApi.post("/team/invite-code")).data;
 }
 
 export async function createProject(name) {
