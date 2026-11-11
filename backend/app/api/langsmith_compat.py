@@ -22,6 +22,7 @@ run 是 LangChain 的通用 span（run_type: chain/llm/tool/retriever/embedding.
 """
 
 import json
+import re
 import uuid
 from datetime import datetime, timezone
 
@@ -68,6 +69,30 @@ _GENERIC_ROOT_NAMES = {"langgraph", "langchain", "chain", "agent", "agentexecuto
                        "runnablesequence", "runnable", "router", "executor"}
 
 
+def _short_label(text, cap=20):
+    """从长文本提取一个适合列表展示的语义短名：
+    取第一句（句末标点切分）；「键：值 键：值」形态取首个键值对；
+    超长时丢弃括号插入语、在逗号边界收尾——保证名字读起来是完整语义，不是硬截断。"""
+    s = re.sub(r"\s+", " ", str(text)).strip()
+    if not s:
+        return ""
+    seg = re.split(r"[。！？!?；;\n]", s)[0].strip() or s
+    if "：" in seg:  # 「景点地址：上海 酒店地址：…」→ 取首个「键：值」
+        head, *rest = seg.split("：")
+        if rest:
+            cand = f"{head}：{rest[0].split(' ')[0]}"
+            if 4 <= len(cand) <= cap:
+                seg = cand
+    if len(seg) > cap:
+        stripped = re.sub(r"（[^）]*）|\([^)]*\)", "", seg).strip()  # 丢括号插入语
+        seg = stripped or seg
+    if len(seg) > cap:
+        cut = seg[:cap]
+        best = max((cut.rfind(sep) for sep in ("，", "、", ",")), default=-1)
+        seg = cut[:best] if best >= 8 else cut + "…"
+    return seg
+
+
 def _readable_name(run):
     """根 trace 的可读名：LangGraph/ChatOpenAI 这类框架内部名没业务含义，
     从 inputs 里挖第一条人类消息或主要文本字段（LangSmith 同款体验）。"""
@@ -80,7 +105,7 @@ def _readable_name(run):
     for k in ("user_message", "query", "question", "input", "prompt", "task", "message"):
         v = ins.get(k)
         if isinstance(v, str) and v.strip():
-            return v.strip()[:32]
+            return _short_label(v)
     msgs = ins.get("messages")
     if isinstance(msgs, list) and msgs:
         flat = msgs if isinstance(msgs[0], list) else [msgs]
@@ -88,10 +113,10 @@ def _readable_name(run):
             for m in (batch or []):
                 uw = _unwrap_msg(m)
                 if uw.get("role") in ("human", "user") and uw.get("content"):
-                    return str(uw["content"]).strip()[:32]
+                    return _short_label(str(uw["content"]))
     for v in ins.values():  # 兜底：state dict 里第一条字符串值
         if isinstance(v, str) and v.strip():
-            return v.strip()[:32]
+            return _short_label(v)
     return name or "trace"
 
 
