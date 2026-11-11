@@ -10,6 +10,16 @@ const PAGE_SIZE = 50;
 const SPAN_TYPES = [["", ""], ["llm", "spanType.llm"], ["tool", "spanType.tool"], ["retrieval", "spanType.retrieval"], ["agent", "spanType.agent"], ["chain", "spanType.chain"]];
 const VIEWS = [["traces", "view.traces"], ["threads", "view.threads"], ["runs", "view.runs"]];
 
+function timeAgo(iso) {
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return "刚刚";
+  if (diff < 3600) return Math.floor(diff / 60) + " 分钟前";
+  if (diff < 86400) return Math.floor(diff / 3600) + " 小时前";
+  if (diff < 86400 * 7) return Math.floor(diff / 86400) + " 天前";
+  return d.toLocaleString("zh-CN");
+}
+
 function fmtLatency(ms) {
   return ms >= 1000 ? (ms / 1000).toFixed(2) + " s" : ms + " ms";
 }
@@ -257,7 +267,7 @@ export default function Traces() {
                   <td><span className="io-preview mono" title={preview(t.input, 200)}>{preview(t.input)}</span></td>
                   <td><span className="io-preview mono" title={preview(t.output, 200)}>{preview(t.output)}</span></td>
                   <td>{t.status === "error" ? <span className="io-error" title={errText(t.error || (t.output && t.output.error))}>{errText(t.error || (t.output && t.output.error))}</span> : <span className="muted">—</span>}</td>
-                  <td className="muted">{new Date(t.start_time).toLocaleString("zh-CN")}</td>
+                  <td className="muted" title={new Date(t.start_time).toLocaleString("zh-CN")}>{timeAgo(t.start_time)}</td>
                   <td className="num"><span className={"lat-chip " + latClass(t.latency_ms)}><Icon name="clock" size={10} /> {fmtLatency(t.latency_ms)}</span></td>
                   <td className="num">{fmtTokens(t.total_tokens)}</td>
                   <td className="num">${t.cost.toFixed(5)}</td>
@@ -297,7 +307,7 @@ export default function Traces() {
                   <td className="muted small">{r.trace_name}</td>
                   <td><span className="io-preview mono" title={preview(r.input, 200)}>{preview(r.input)}</span></td>
                   <td><span className="io-preview mono" title={preview(r.output, 200)}>{preview(r.output)}</span></td>
-                  <td className="muted">{new Date(r.start_time).toLocaleTimeString("zh-CN")}</td>
+                  <td className="muted" title={new Date(r.start_time).toLocaleString("zh-CN")}>{timeAgo(r.start_time)}</td>
                   <td className="num"><span className={"lat-chip " + latClass(r.latency_ms)}><Icon name="clock" size={10} /> {fmtLatency(r.latency_ms)}</span></td>
                   <td className="num">{fmtTokens((r.prompt_tokens || 0) + (r.completion_tokens || 0))}</td>
                 </tr>
