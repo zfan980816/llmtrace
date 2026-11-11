@@ -1,0 +1,30 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+build/
+
+# env & secrets
+.env
+
+# databases (dev/test)
+*.db
+*.sqlite3
+
+# frontend
+node_modules/
+frontend/dist/
+
+# logs
+*.log
+.playwright-cli/
+
+# local screenshots / scratch
+*.png
+!docs/screenshots/*.png
+!frontend/public/*.png
+!frontend/public/*.svg
+
+# local installer leftovers
+_docker_msi/

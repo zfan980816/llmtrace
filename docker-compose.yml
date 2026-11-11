@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: llmtrace-db
+    environment:
+      POSTGRES_USER: llmtrace
+      POSTGRES_PASSWORD: llmtrace
+      POSTGRES_DB: llmtrace
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U llmtrace"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  app:
+    build: .
+    container_name: llmtrace-app
+    environment:
+      DATABASE_URL: postgresql+psycopg://llmtrace:llmtrace@db:5432/llmtrace
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-with-a-long-random-string}
+      SEED_DEMO: ${SEED_DEMO:-true}
+      FEISHU_APP_ID: ${FEISHU_APP_ID:-}
+      FEISHU_APP_SECRET: ${FEISHU_APP_SECRET:-}
+      FEISHU_REDIRECT_URI: ${FEISHU_REDIRECT_URI:-}
+      FEISHU_DEFAULT_ROLE: ${FEISHU_DEFAULT_ROLE:-member}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
