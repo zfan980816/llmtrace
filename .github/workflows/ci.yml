@@ -43,6 +43,7 @@ jobs:
           python feedback_test.py
           python ws_test.py
           python otel_test.py
+          python langsmith_compat_test.py
         env:
           DATABASE_URL: sqlite:///./ci_test.db
 
