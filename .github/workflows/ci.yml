@@ -45,6 +45,7 @@ jobs:
           python otel_test.py
           python langsmith_compat_test.py
           python email_login_test.py
+          python teams_test.py
         env:
           DATABASE_URL: sqlite:///./ci_test.db
 
