@@ -18,16 +18,20 @@ with SessionLocal() as db:
 
 client = TestClient(app)
 
-# 1) admin 登录并创建团队 team-a
-r = client.post("/api/auth/login", json={"username": "admin", "password": "admin123"})
-at = r.json()["token"]
-ah = {"Authorization": "Bearer " + at}
+# 1) 新邮箱用户登录（viewer、无团队）并创建团队 team-a（自动升级 member）
+r = client.post("/api/auth/email-code", json={"email": "owner@corp.com"})
+oc = r.json()["dev_code"]
+r = client.post("/api/auth/email-login", json={"email": "owner@corp.com", "code": oc})
+ot = r.json()["token"]
+ah = {"Authorization": "Bearer " + ot}
 r = client.post("/api/team", json={"name": "team-a"}, headers=ah)
 assert r.status_code == 201, r.text
 invite = r.json()["invite_code"]
 r = client.get("/api/team", headers=ah)
 assert r.json()["name"] == "team-a" and r.json()["is_owner"] is True and r.json()["invite_code"] == invite
-print("create team: OK")
+r = client.get("/api/auth/me", headers=ah)
+assert r.json()["role"] == "member", f"creator should be member: {r.json()}"
+print("create team (creator auto member): OK")
 
 # 2) admin 建项目 proj-a（自动归属 team-a）
 r = client.post("/api/v1/projects", json={"name": "proj-a"}, headers=ah)

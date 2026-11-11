@@ -31,6 +31,9 @@ client.post("/api/auth/users", headers=AUTH, json={
 MEM = {"Authorization": "Bearer " + client.post(
     "/api/auth/login", json={"username": "dev5", "password": "dev5pass"}).json()["token"]}
 
+# 团队模型：member 建项目前先创建团队
+client.post("/api/team", headers=MEM, json={"name": "v05-team"})
+
 # 1. member 建项目（产生 project.create 审计）
 r = client.post("/api/v1/projects", headers=MEM, json={"name": "v05"})
 assert r.status_code == 201, r.text

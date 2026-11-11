@@ -45,12 +45,20 @@ def create_token(user: User) -> str:
 def ensure_default_admin(db: Session) -> None:
     """Seed the default admin account on a fresh database."""
     if db.query(User).count() == 0:
-        db.add(User(
+        admin = User(
             username="admin",
             display_name="管理员",
             role="admin",
             password_hash=hash_password("admin123"),
-        ))
+        )
+        db.add(admin)
+        db.flush()
+        # 默认团队：admin 自动加入（与 teams 迁移行为一致）
+        from ..models import Team
+        team = Team(name="LLMTrace", invite_code=secrets.token_hex(4), created_by=admin.id)
+        db.add(team)
+        db.flush()
+        admin.team_id = team.id
         db.commit()
 
 

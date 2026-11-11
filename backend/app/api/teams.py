@@ -46,6 +46,8 @@ def create_team(payload: TeamCreate, user: User = Depends(get_current_user),
     db.add(team)
     db.flush()
     user.team_id = team.id
+    if user.role == "viewer":
+        user.role = "member"  # 团队创建者需要能建项目/告警接入自己的应用
     db.commit()
     return {"name": team.name, "invite_code": team.invite_code, "is_owner": True}
 
