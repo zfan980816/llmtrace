@@ -280,9 +280,14 @@ export default function TraceDetail() {
               )}
               {tab === "raw" && (
                 <div className="raw-json">
-                  <div className="raw-sec"><div className="raw-label">input</div><pre className="mono">{asObjectText(sel.input) || "—"}</pre></div>
-                  <div className="raw-sec"><div className="raw-label">output</div><pre className="mono">{asObjectText(sel.output) || "—"}</pre></div>
-                  {sel.meta && <div className="raw-sec"><div className="raw-label">metadata</div><pre className="mono">{asObjectText(sel.meta)}</pre></div>}
+                  <JsonBlock title="Input" icon="terminal" value={sel.input} />
+                  <JsonBlock title="Output" icon="message-square" value={sel.output} />
+                  {sel.meta && (
+                    <details className="raw-meta">
+                      <summary>Metadata</summary>
+                      <JsonBlock title={null} icon="layers" value={sel.meta} />
+                    </details>
+                  )}
                 </div>
               )}
             </div>
