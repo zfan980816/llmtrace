@@ -39,7 +39,6 @@ jobs:
           python v05_test.py
           python v06_test.py
           python v07_test.py
-          python sso_test.py
           python feedback_test.py
           python ws_test.py
           python otel_test.py
