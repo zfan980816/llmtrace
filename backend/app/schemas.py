@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID
 
-import uuid as _uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 

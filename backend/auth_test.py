@@ -53,11 +53,16 @@ vtoken = client.post("/api/auth/login", json={"username": "view1", "password": "
 MEM = {"Authorization": "Bearer " + mtoken}
 VIEW = {"Authorization": "Bearer " + vtoken}
 
-# viewer cannot create rules
-r = client.post("/api/auth/projects", headers=VIEW)  # 404 route check not needed; use real checks below
-# viewer cannot create project
+# viewer cannot create project (RBAC)
 r = client.post("/api/v1/projects", headers=VIEW, json={"name": "nope"})
 assert r.status_code == 403, r.text
+# member creates a team first (team model: projects belong to teams)
+r = client.post("/api/team", headers=MEM, json={"name": "dev-team"})
+assert r.status_code == 201, r.text
+invite = r.json()["invite_code"]
+# viewer joins the same team via invite code (then can read team data)
+r = client.post("/api/team/join", headers=VIEW, json={"invite_code": invite})
+assert r.status_code == 200, r.text
 # member CAN create project
 r = client.post("/api/v1/projects", headers=MEM, json={"name": "team-a"})
 assert r.status_code == 201, r.text

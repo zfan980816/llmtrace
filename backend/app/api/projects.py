@@ -22,7 +22,7 @@ def create_project(
     exists = db.query(Project).filter(Project.name == payload.name).first()
     if exists:
         return exists
-    if member.team_id is None:
+    if member.role != "admin" and member.team_id is None:
         raise HTTPException(status_code=403, detail="请先创建或加入团队")
     project = Project(name=payload.name, team_id=member.team_id, api_key=secrets.token_hex(24))
     db.add(project)
