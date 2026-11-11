@@ -48,7 +48,8 @@ Python SDK ──async ingest──▶ FastAPI ──▶ PostgreSQL / SQLite
 | Runs & Sessions | Flat runs list, session aggregation, full-text search over inputs/outputs/errors |
 | Dashboard | Calls, error rate, avg/P95 latency, token & cost charts, model stats, error clustering |
 | Alerting | Threshold rules (error rate / latency), webhook (JSON / Feishu / DingTalk / WeCom + HMAC), cooldown |
-| Auth | Password login, Feishu SSO, generic OIDC, GitHub OAuth; admin/member/viewer RBAC |
+| Auth | Password login, email verification-code login, Feishu SSO, generic OIDC, GitHub OAuth; admin/member/viewer RBAC |
+| Teams | Multi-tenant teams: create a team and get API keys for your own apps, or join one with an invite code; projects and data are isolated per team |
 | SDK | `wrap_openai` / `wrap_anthropic` (streaming), `@trace`/`@span` decorators, batch + disk buffer, PII masking |
 | LangSmith-compatible | LangChain's built-in tracer works against LLMTrace via `LANGSMITH_*` env vars, no code changes |
 | OpenTelemetry | OTLP/HTTP(JSON) ingestion (`/api/v1/otel/v1/traces`) — GenAI & OpenInference conventions mapped automatically |
