@@ -80,7 +80,7 @@ def _readable_name(run):
     for k in ("user_message", "query", "question", "input", "prompt", "task", "message"):
         v = ins.get(k)
         if isinstance(v, str) and v.strip():
-            return v.strip()[:60]
+            return v.strip()[:32]
     msgs = ins.get("messages")
     if isinstance(msgs, list) and msgs:
         flat = msgs if isinstance(msgs[0], list) else [msgs]
@@ -88,10 +88,10 @@ def _readable_name(run):
             for m in (batch or []):
                 uw = _unwrap_msg(m)
                 if uw.get("role") in ("human", "user") and uw.get("content"):
-                    return str(uw["content"]).strip()[:60]
+                    return str(uw["content"]).strip()[:32]
     for v in ins.values():  # 兜底：state dict 里第一条字符串值
         if isinstance(v, str) and v.strip():
-            return v.strip()[:60]
+            return v.strip()[:32]
     return name or "trace"
 
 

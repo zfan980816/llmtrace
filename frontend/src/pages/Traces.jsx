@@ -36,8 +36,15 @@ function firstText(v) {
     return role + ": " + text;
   }
   if (typeof v === "object") {
-    const vals = Object.values(v);
-    return vals.length ? String(vals[0]) : null;
+    for (const k of ["user_message", "query", "question", "input", "prompt", "message", "text", "itinerary"]) {
+      if (typeof v[k] === "string" && v[k].trim()) return v[k];
+    }
+    for (const val of Object.values(v)) {
+      if (val == null || val === "") continue;
+      const inner = firstText(val);
+      if (inner) return inner;
+    }
+    return null;
   }
   return String(v);
 }
@@ -246,7 +253,7 @@ export default function Traces() {
               {shown.map((t) => (
                 <tr key={t.id}>
                   <td><StatusIcon status={t.status} /></td>
-                  <td><Link to={"/traces/" + t.id} className="trace-name-link">{t.name}</Link></td>
+                  <td><Link to={"/traces/" + t.id} className="trace-name-link" title={t.name}>{t.name}</Link></td>
                   <td><span className="io-preview mono" title={preview(t.input, 200)}>{preview(t.input)}</span></td>
                   <td><span className="io-preview mono" title={preview(t.output, 200)}>{preview(t.output)}</span></td>
                   <td>{t.status === "error" ? <span className="io-error" title={errText(t.error || (t.output && t.output.error))}>{errText(t.error || (t.output && t.output.error))}</span> : <span className="muted">—</span>}</td>
