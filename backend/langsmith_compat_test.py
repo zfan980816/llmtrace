@@ -127,7 +127,7 @@ r = client.post(f"{BASE}/runs/multipart", headers=KEY, files={
 assert r.status_code == 202, r.text
 with SessionLocal() as db:
     t3 = db.get(Trace, rid3)
-    assert t3 is not None and t3.name == "plan:mp"
+    assert t3 is not None and t3.name == "plan"  # 领域名规则：冒号前主语
     assert t3.input == {"user_message": "multipart 冒烟"}, f"fragment lost: {t3.input}"
     assert db.query(Span).filter(Span.trace_id == rid3).count() == 2
 print("multipart ingest: OK")
