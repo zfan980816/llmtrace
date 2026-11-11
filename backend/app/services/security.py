@@ -50,6 +50,7 @@ def ensure_default_admin(db: Session) -> None:
             display_name="管理员",
             role="admin",
             password_hash=hash_password("admin123"),
+            must_change_password=True,
         )
         db.add(admin)
         db.flush()

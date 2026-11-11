@@ -56,6 +56,14 @@ export function logout() {
   localStorage.removeItem("llmtrace_token");
 }
 
+export async function changeOwnPassword(oldPassword, newPassword) {
+  const { data } = await api.patch("/auth/me/password", {
+    old_password: oldPassword,
+    new_password: newPassword,
+  });
+  return data;
+}
+
 export async function adminListUsers() {
   return (await authApi.get("/auth/users")).data;
 }

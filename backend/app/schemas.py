@@ -282,6 +282,7 @@ class UserOut(BaseModel):
     role: str
     team_id: UUID | None = None
     is_active: bool
+    must_change_password: bool = False
     avatar_url: Optional[str] = None
     created_at: datetime
 

@@ -13,6 +13,7 @@ import TraceDetail from "./pages/TraceDetail";
 import Traces from "./pages/Traces";
 import Users from "./pages/Users";
 import TeamGate from "./pages/TeamGate";
+import ForcePasswordChange from "./components/ForcePasswordChange";
 
 const ROLE_LABELS = { admin: "role.admin", member: "role.member", viewer: "role.viewer" };
 
@@ -92,6 +93,20 @@ export default function App() {
 
   if (user === null) {
     return <Login onLogin={setUser} />;
+  }
+
+  // 默认密码强制修改：首次登录 admin/admin123 后必须先改密码
+  if (user.must_change_password) {
+    return (
+      <AuthContext.Provider value={{ user, setUser }}>
+        <ForcePasswordChange
+          onDone={async () => {
+            const me = await fetchMe().catch(() => null);
+            if (me) setUser(me);
+          }}
+        />
+      </AuthContext.Provider>
+    );
   }
 
   // 未加入任何团队：先创建或加入团队，之后才能看到监控数据

@@ -5,6 +5,7 @@ import threading
 import time
 import uuid
 
+from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
@@ -134,6 +135,29 @@ def login(payload: LoginIn, request: Request, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserOut)
 def me(user: User = Depends(get_current_user)):
     return user
+
+class PasswordChange(BaseModel):
+    old_password: str
+    new_password: str
+
+
+@router.patch("/me/password")
+def change_own_password(
+    payload: PasswordChange,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not verify_password(payload.old_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="旧密码错误")
+    if len(payload.new_password) < 8:
+        raise HTTPException(status_code=422, detail="新密码至少 8 位")
+    user.password_hash = hash_password(payload.new_password)
+    user.must_change_password = False
+    db.commit()
+    record_audit(db, user, "user.change_password", user.username, {})
+    return {"ok": True}
+
+
 
 
 @router.get("/users", response_model=list[UserOut])
