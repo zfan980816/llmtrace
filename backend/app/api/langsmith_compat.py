@@ -30,6 +30,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..api.deps import get_project
+from ..services.cost import estimate_cost
 from ..database import get_db
 from ..models import Project, Span, Trace
 
@@ -61,6 +62,35 @@ def _ms(start, end):
     if not start or not end:
         return 0
     return max(0, int((end - start).total_seconds() * 1000))
+
+
+_GENERIC_ROOT_NAMES = {"langgraph", "langchain", "chain", "agent", "agentexecutor",
+                       "runnablesequence", "runnable", "router", "executor"}
+
+
+def _readable_name(run):
+    """根 trace 的可读名：LangGraph/ChatOpenAI 这类框架内部名没业务含义，
+    从 inputs 里挖第一条人类消息或主要文本字段（LangSmith 同款体验）。"""
+    name = str(run.get("name") or "")
+    if name.lower() not in _GENERIC_ROOT_NAMES:
+        return name
+    ins = run.get("inputs") if isinstance(run.get("inputs"), dict) else {}
+    for k in ("user_message", "query", "question", "input", "prompt", "task", "message"):
+        v = ins.get(k)
+        if isinstance(v, str) and v.strip():
+            return v.strip()[:60]
+    msgs = ins.get("messages")
+    if isinstance(msgs, list) and msgs:
+        flat = msgs if isinstance(msgs[0], list) else [msgs]
+        for batch in flat:
+            for m in (batch or []):
+                uw = _unwrap_msg(m)
+                if uw.get("role") in ("human", "user") and uw.get("content"):
+                    return str(uw["content"]).strip()[:60]
+    for v in ins.values():  # 兜底：state dict 里第一条字符串值
+        if isinstance(v, str) and v.strip():
+            return v.strip()[:60]
+    return name or "trace"
 
 
 def _extra_meta(run):
@@ -173,16 +203,20 @@ def _span_meta(run):
     return meta or None
 
 
-def _agg_trace_tokens(db, trace_id):
-    """用 spans 聚合回填 trace 的 token 汇总（llm span patch 后调用）。"""
+def _agg_trace_totals(db, trace_id):
+    """用 spans 聚合回填 trace 的 token/成本汇总（与 SDK 上报口径一致：token 全 span 求和，成本只算 llm span）。"""
+    db.flush()  # autoflush=False：先把 pending 的 span 变更刷进事务，聚合才读得到
     row = db.query(
         func.coalesce(func.sum(Span.prompt_tokens), 0),
         func.coalesce(func.sum(Span.completion_tokens), 0),
         func.coalesce(func.sum(Span.total_tokens), 0),
     ).filter(Span.trace_id == trace_id).one()
+    cost = db.query(func.coalesce(func.sum(Span.cost), 0.0)).filter(
+        Span.trace_id == trace_id, Span.span_type == "llm").scalar()
     t = db.get(Trace, trace_id)
     if t:
         t.prompt_tokens, t.completion_tokens, t.total_tokens = int(row[0]), int(row[1]), int(row[2])
+        t.cost = round(float(cost or 0.0), 6)
 
 
 def _apply_run(db, project: Project, run: dict, is_create: bool):
@@ -206,7 +240,7 @@ def _apply_run(db, project: Project, run: dict, is_create: bool):
         md = _extra_meta(run)
         trace = Trace(
             id=tid, project_id=project.id,
-            name=str(run.get("name") or "trace"),
+            name=_readable_name(run)[:200],
             session_id=(md.get("thread_id") and str(md["thread_id"])) or None,
             status="ok", error=None,
             input=_norm_llm_inputs(run, run.get("inputs")),
@@ -248,7 +282,8 @@ def _apply_run(db, project: Project, run: dict, is_create: bool):
     if run.get("outputs") is not None:
         span.output = _norm_llm_outputs(run, run["outputs"])
     span.meta = _span_meta(run) or span.meta
-    span.start_time = start
+    if run.get("start_time"):
+        span.start_time = start  # patch 通常不带 start_time，缺省保留原值防漂移
     if run.get("end_time"):
         span.end_time = end
         span.latency_ms = _ms(start, end)
@@ -256,17 +291,22 @@ def _apply_run(db, project: Project, run: dict, is_create: bool):
     if span_type == "llm":
         p, c, t = _extract_tokens(run)
         span.prompt_tokens, span.completion_tokens, span.total_tokens = p, c, t
-        _agg_trace_tokens(db, tid)
+        span.cost = round(estimate_cost(span.model, p, c), 6)
+        _agg_trace_totals(db, tid)
 
     # ---- 根 run：镜像回填 trace 汇总字段（LangSmith 同款语义）----
     if is_root:
-        trace.name = span.name
+        new_name = _readable_name(run)
+        if new_name and new_name != str(run.get("name") or ""):
+            # 仅当提取到可读名（patch 不带 inputs 时 _readable_name 退回框架名，不覆盖创建时的好名）
+            trace.name = new_name[:200]
         trace.status = status
         trace.error = run.get("error")
         trace.input = span.input
         if run.get("outputs") is not None:
             trace.output = _norm_llm_outputs(run, run["outputs"])
-        trace.start_time = start
+        if run.get("start_time"):
+            trace.start_time = start
         if run.get("end_time"):
             trace.end_time = end
             trace.latency_ms = _ms(start, end)
@@ -274,6 +314,7 @@ def _apply_run(db, project: Project, run: dict, is_create: bool):
             trace.prompt_tokens = span.prompt_tokens
             trace.completion_tokens = span.completion_tokens
             trace.total_tokens = span.total_tokens
+        _agg_trace_totals(db, tid)
 
 
 @router.get("/info")
