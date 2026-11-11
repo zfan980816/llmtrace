@@ -258,6 +258,21 @@ def _apply_run(db, project: Project, run: dict, is_create: bool):
     parent_id = uuid.UUID(str(run["parent_run_id"])) if run.get("parent_run_id") else None
     is_root = parent_id is None
 
+    # langgraph 结构细分：chain 名字蕴含真实角色——主图/子图=agent，model=llm 步骤，
+    # tools=工具步骤，tools 的子 run=具体工具调用（LangSmith 同款阅读体验）
+    lname = (run.get("name") or "").lower()
+    if span_type == "chain":
+        if lname == "langgraph":
+            span_type = "agent"
+        elif lname == "model":
+            span_type = "llm"
+        elif lname == "tools":
+            span_type = "tool"
+        elif parent_id is not None:
+            parent = db.get(Span, parent_id)
+            if parent is not None and (parent.name or "").lower() == "tools":
+                span_type = "tool"
+
     # ---- trace 行（按主键 get_or_create：根 run 先到先建；子 run 先到也能兜底建壳）----
     trace = db.get(Trace, tid)
     if trace is None:
