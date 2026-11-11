@@ -6,7 +6,7 @@
 
 Trace every LLM call. See every input & output. Alert when things break.
 
-[![CI](https://github.com/llmtrace/llmtrace/actions/workflows/ci.yml/badge.svg)](../../actions)
+[![CI](https://github.com/zfan980816/llmtrace/actions/workflows/ci.yml/badge.svg)](../../actions)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12+-blue)](https://www.python.org)
 
@@ -69,7 +69,7 @@ Python SDK ──async ingest──▶ FastAPI ──▶ PostgreSQL / SQLite
 ## Quick start
 
 ```bash
-git clone https://github.com/llmtrace/llmtrace && cd llmtrace
+git clone https://github.com/zfan980816/llmtrace && cd llmtrace
 cp .env.example .env          # set JWT_SECRET; SEED_DEMO=true injects demo data
 docker compose up -d --build
 ```

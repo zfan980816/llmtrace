@@ -45,7 +45,7 @@ Python SDK ──异步上报──▶ FastAPI ──▶ PostgreSQL
 ### 方式一：Docker 一键部署（推荐）
 
 ```bash
-git clone <repo-url> && cd llmtrace
+git clone https://github.com/zfan980816/llmtrace.git && cd llmtrace
 cp .env.example .env        # 按需修改 JWT_SECRET / SEED_DEMO / 飞书 SSO
 docker compose up -d --build
 ```

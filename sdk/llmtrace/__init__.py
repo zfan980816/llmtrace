@@ -8,7 +8,7 @@ __all__ = [
     "wrap_openai",
     "wrap_anthropic",
 ]
-__version__ = "0.3.0"
+__version__ = "0.1.0"
 
 
 def wrap_openai(client):
