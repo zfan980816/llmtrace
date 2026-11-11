@@ -21,7 +21,9 @@ jobs:
           cache-dependency-path: backend/requirements.txt
 
       - name: Install deps
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install pytest   # ws_test.py 依赖 pytest（http 为标准库）
 
       - name: Migration smoke (empty sqlite -> head)
         run: alembic upgrade head
