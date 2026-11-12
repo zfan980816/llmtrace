@@ -1,6 +1,6 @@
 # LLMTrace
 
-一个类 LangSmith 的 **LLM 监控平台 MVP**：链路追踪 + 指标仪表盘。
+一个类 LangSmith 的 **LLM 监控平台**：链路追踪 + 指标仪表盘。
 
 ```
 Python SDK ──异步上报──▶ FastAPI ──▶ PostgreSQL
@@ -72,21 +72,6 @@ llmtrace demo --url http://localhost:8000 --key <项目 API Key>
 ### 方式二：本地开发
 
 ```bash
-# 1. 数据库（或直接用 SQLite：DATABASE_URL=sqlite:///./llmtrace.db）
-docker compose up -d db
-
-# 2. 后端
-cd backend
-pip install -r requirements.txt
-alembic upgrade head        # 建表/升级结构
-uvicorn app.main:app --reload --port 8000
-
-# 3. 前端
-cd frontend
-
-### 方式二：本地开发
-
-```bash
 # 1. 数据库
 docker compose up -d db
 
@@ -147,24 +132,6 @@ answer("hello")
 
 刷新前端即可看到链路与指标。
 
-## 飞书 SSO 登录
-
-1. 在[飞书开放平台](https://open.feishu.cn)创建企业自建应用，开通「获取用户基本信息」权限。
-2. 在应用的安全设置中添加重定向 URL：`http://<你的后端地址>/api/auth/feishu/callback`。
-3. 后端启动前设置环境变量：
-
-```bash
-FEISHU_APP_ID=cli_xxx           # 应用 App ID
-FEISHU_APP_SECRET=xxx           # 应用 App Secret
-# 可选：
-FEISHU_REDIRECT_URI=            # 留空按请求自动推导
-FEISHU_DEFAULT_ROLE=member      # 飞书新用户默认角色 admin|member|viewer
-```
-
-- 未配置时登录页自动隐藏飞书按钮。
-- 首次登录按 `feishu_open_id` 匹配已有账号，无匹配则自动建号（用户名取飞书邮箱，缺省 `feishu_<id>`）。
-- 登录成功签发本平台 JWT 并重定向回前端，角色/权限与密码登录一致。
-
 ## API 一览
 
 | 方法 | 路径 | 说明 |
@@ -194,9 +161,8 @@ frontend/  React + Vite 控制台
 docker-compose.yml
 ```
 
-## Roadmap（后续）
+## Roadmap
 
 - 大规模存储：ClickHouse / TimescaleDB（当前 Postgres 单机可支撑百万级 Span，量大时再迁移）
-- 用户账号与团队权限体系（当前为多项目 + API Key 模式）
 - SDK：LangChain / LlamaIndex 官方集成
-- 前端：Trace 对比视图、下载导出
+- 前端：Trace 对比视图

@@ -16,7 +16,7 @@ Self-hosted tracing and monitoring for LLM applications.
 
 LLMTrace is a self-hosted observability platform for LLM applications: trace-level
 monitoring with full input/output visibility, cost & latency metrics, sessions,
-alerting, SSO, RBAC — in a single container.
+alerting, RBAC — in a single container.
 
 <p align="center">
   <img src="docs/screenshots/walkthrough.gif" alt="LLMTrace walkthrough" width="900">
@@ -37,7 +37,7 @@ Python SDK ──async ingest──▶ FastAPI ──▶ PostgreSQL / SQLite
 - Traces / Threads / Runs views, span tree, latency and token badges,
   feedback (up/down)
 - Self-hosted: prompts never leave your network
-- Feishu SSO login, Feishu / DingTalk / WeCom webhook alerts
+- Webhook alerts for Feishu / DingTalk / WeCom with HMAC signatures
 - One-line SDK: `llmtrace.wrap_openai(client)`
 
 ## Features
@@ -137,8 +137,7 @@ LANGSMITH_API_KEY=<LLMTrace project API key>
 LANGSMITH_PROJECT=<project name>
 ```
 
-That's it. Every chain / agent / tool / retriever / LLM call shows up as a
-trace tree with full inputs, outputs, tokens, latency and errors — including
+Every chain / agent / tool / retriever / LLM call shows up as a trace tree with full inputs, outputs, tokens, latency and errors — including
 streaming, parallel graph branches and LangGraph checkpoints. To switch back
 to LangSmith, just point `LANGSMITH_ENDPOINT` at `api.smith.langchain.com`.
 
@@ -158,8 +157,7 @@ Tests: `python smoke_test.py && python auth_test.py && ...` (see `backend/*_test
 
 ## Environment variables
 
-See [.env.example](.env.example) — database URL, JWT secret, SSO providers
-(Feishu / OIDC / GitHub), seed switch.
+See [.env.example](.env.example) — database URL, JWT secret, seed switch.
 
 ## License
 
