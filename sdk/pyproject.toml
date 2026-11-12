@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmtrace-sdk"
+name = "llmtrace-observability"
 version = "0.1.1"
 description = "LLMTrace SDK - one-line LLM observability for OpenAI / Anthropic and plain functions"
 readme = "README.md"

@@ -81,7 +81,7 @@ project with three representative traces, so the UI is alive out of the box.
 ### Trace your first call
 
 ```bash
-pip install llmtrace-sdk
+pip install llmtrace-observability
 ```
 
 Don't have an app to instrument yet? Send a sample trace and see the UI working:

@@ -60,7 +60,7 @@ docker compose up -d --build
 ### 接入应用
 
 ```bash
-pip install llmtrace-sdk
+pip install llmtrace-observability
 ```
 
 还没有要接入的应用？先发一条测试 trace 看看 UI：
