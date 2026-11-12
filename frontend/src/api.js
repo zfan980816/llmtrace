@@ -56,6 +56,16 @@ export function logout() {
   localStorage.removeItem("llmtrace_token");
 }
 
+export async function createShareLink(traceId) {
+  const { data } = await api.post(`/traces/${traceId}/share`);
+  return data;
+}
+
+export async function fetchSharedTrace(token) {
+  const { data } = await api.get(`/public/traces/${token}`);
+  return data;
+}
+
 export async function changeOwnPassword(oldPassword, newPassword) {
   const { data } = await api.patch("/auth/me/password", {
     old_password: oldPassword,

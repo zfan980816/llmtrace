@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import api from "../api";
+import api, { createShareLink } from "../api";
 import { addFeedback, listFeedback, deleteFeedback } from "../feedbackApi";
 import Icon from "../components/Icon";
 import JsonBlock from "../components/JsonBlock";
@@ -55,6 +55,7 @@ export default function TraceDetail() {
   const [fbs, setFbs] = useState([]);
 
   const [fbBusy, setFbBusy] = useState(false);
+  const [shareHint, setShareHint] = useState(null);
   const [fbDraft, setFbDraft] = useState("");
 
   useEffect(() => {
@@ -141,6 +142,20 @@ export default function TraceDetail() {
   const upCount = fbs.filter((f) => f.score === 1).length;
   const downCount = fbs.filter((f) => f.score === -1).length;
 
+  const onShare = async () => {
+    setShareHint(null);
+    try {
+      const { share_token } = await createShareLink(id);
+      const url = window.location.origin + "/share/" + share_token;
+      await navigator.clipboard.writeText(url);
+      setShareHint("链接已复制");
+      setTimeout(() => setShareHint(null), 2500);
+    } catch (e) {
+      setShareHint(e.response?.data?.detail || "复制失败");
+      setTimeout(() => setShareHint(null), 3000);
+    }
+  };
+
   return (
     <div className="page trace-page">
       <div className="page-head">
@@ -160,6 +175,12 @@ export default function TraceDetail() {
               </>
             )}
           </p>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, position: "relative" }}>
+          {shareHint && <span style={{ fontSize: 12, color: "var(--muted)" }}>{shareHint}</span>}
+          <button className="btn" onClick={onShare} title="生成只读分享链接">
+            <Icon name="link" size={13} /> 分享
+          </button>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 import csv
 import io
+import secrets
 import json
 import uuid
 
@@ -269,3 +270,40 @@ def get_trace(
     if trace is None:
         raise HTTPException(status_code=404, detail="Trace not found")
     return trace
+
+
+@router.post("/{trace_id}/share")
+def create_share_link(
+    trace_id: uuid.UUID,
+    project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    q = db.query(Trace).filter(Trace.id == trace_id)
+    if project_id:
+        q = q.filter(Trace.project_id == project_id)
+    if allowed is not None:
+        q = q.filter(Trace.project_id.in_(allowed))
+    trace = q.first()
+    if trace is None:
+        raise HTTPException(status_code=404, detail="trace not found")
+    if not trace.share_token:
+        trace.share_token = secrets.token_urlsafe(32)
+        db.commit()
+    return {"share_token": trace.share_token}
+
+
+@router.delete("/{trace_id}/share")
+def revoke_share_link(
+    trace_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    trace = db.get(Trace, trace_id)
+    if trace is None:
+        raise HTTPException(status_code=404, detail="trace not found")
+    trace.share_token = None
+    db.commit()
+    return {"ok": True}
+

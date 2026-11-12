@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, Route, Routes } from "react-router-dom";
+import { NavLink, Route, Routes, useLocation } from "react-router-dom";
 import api, { createProject, ensureProject, fetchMe, logout, onProjectChange, resetProject, setToken, switchProject } from "./api";
 import { AuthContext } from "./auth";
 import Icon from "./components/Icon";
@@ -13,12 +13,15 @@ import TraceDetail from "./pages/TraceDetail";
 import Traces from "./pages/Traces";
 import Users from "./pages/Users";
 import TeamGate from "./pages/TeamGate";
+import SharedTrace from "./pages/SharedTrace";
 import ForcePasswordChange from "./components/ForcePasswordChange";
 
 const ROLE_LABELS = { admin: "role.admin", member: "role.member", viewer: "role.viewer" };
 
 export default function App() {
   const lang = useLang();
+  const location = useLocation();
+  const isPublicShare = location.pathname.startsWith("/share/");
   const [user, setUser] = useState(undefined); // undefined=加载中, null=未登录
   const [theme, setTheme] = useState(() => localStorage.getItem("llmtrace_theme") || "light");
   const [projects, setProjects] = useState([]);
@@ -86,6 +89,17 @@ export default function App() {
     logout();
     setUser(null);
   };
+
+  // 公开分享链接：不要求登录
+  if (isPublicShare) {
+    return (
+      <AuthContext.Provider value={{ user: null, setUser: () => {} }}>
+        <Routes>
+          <Route path="/share/:token" element={<SharedTrace />} />
+        </Routes>
+      </AuthContext.Provider>
+    );
+  }
 
   if (user === undefined) {
     return <div className="empty" style={{ paddingTop: 140 }}>{t("common.loading")}</div>;
