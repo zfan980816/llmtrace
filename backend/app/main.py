@@ -14,7 +14,7 @@ from .services.alerting import background_loop
 from .services.retention import retention_loop
 from .services.security import ensure_default_admin
 
-app = FastAPI(title="LLMTrace", version="0.7.0", description="LLM monitoring platform for teams")
+app = FastAPI(title="LLMTrace", version="0.2.0", description="LLM monitoring platform for teams")
 
 app.add_middleware(
     CORSMiddleware,
