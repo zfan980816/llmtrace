@@ -253,6 +253,19 @@ class EmailLoginIn(BaseModel):
     code: str
 
 
+class RegisterIn(BaseModel):
+    email: str
+    code: str
+    password: str
+    username: str | None = None
+
+
+class PasswordResetIn(BaseModel):
+    email: str
+    code: str
+    new_password: str
+
+
 class LoginIn(BaseModel):
     username: str
     password: str

@@ -56,6 +56,26 @@ export function logout() {
   localStorage.removeItem("llmtrace_token");
 }
 
+export async function registerSendCode(email) {
+  const { data } = await api.post("/auth/register/send-code", { email });
+  return data;
+}
+
+export async function register(email, code, password) {
+  const { data } = await api.post("/auth/register", { email, code, password });
+  return data;
+}
+
+export async function forgotSendCode(email) {
+  const { data } = await api.post("/auth/forgot/send-code", { email });
+  return data;
+}
+
+export async function resetPassword(email, code, newPassword) {
+  const { data } = await api.post("/auth/reset", { email, code, new_password: newPassword });
+  return data;
+}
+
 export async function createShareLink(traceId) {
   const { data } = await api.post(`/traces/${traceId}/share`);
   return data;
