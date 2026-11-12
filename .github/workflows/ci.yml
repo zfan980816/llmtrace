@@ -36,8 +36,8 @@ jobs:
           python auth_test.py
           python alerts_test.py
           python sessions_test.py
-          python v05_test.py
-          python v06_test.py
+          python features_test.py
+          python analytics_test.py
           python feedback_test.py
           python ws_test.py
           python otel_test.py
