@@ -118,7 +118,7 @@ const DICT = {
   "dash.backendError": ["无法连接后端", "Cannot reach backend"],
 
   // ---- TraceDetail ----
-  "detail.backToList": ["← 返回列表", "← Back to list"],
+  "detail.backToList": ["返回列表", "Back to list"],
   "detail.session": ["会话", "Session"],
   "tab.feedback": ["Feedback", "Feedback"],
   "tab.input": ["对话", "Chat"],

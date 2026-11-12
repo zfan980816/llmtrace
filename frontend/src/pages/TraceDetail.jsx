@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import api, { createShareLink } from "../api";
 import { addFeedback, listFeedback, deleteFeedback } from "../feedbackApi";
 import Icon from "../components/Icon";
@@ -46,6 +46,8 @@ function looksLikeError(output) {
 
 export default function TraceDetail() {
   const lang = useLang();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
   const [trace, setTrace] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -160,7 +162,10 @@ export default function TraceDetail() {
     <div className="page trace-page">
       <div className="page-head">
         <div>
-          <Link to="/traces"><Icon name="arrow-left" size={12} /> {t("detail.backToList")}</Link>
+          <Link to="/traces" onClick={(e) => {
+              e.preventDefault();
+              if (location.key !== "default") navigate(-1); else navigate("/traces");
+            }}><Icon name="arrow-left" size={12} /> {t("detail.backToList")}</Link>
           <h1 style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
             <StatusIcon status={trace.status} />
             {trace.name}
