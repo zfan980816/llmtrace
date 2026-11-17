@@ -130,7 +130,15 @@ export async function ensureProject() {
   if (currentProject) return currentProject;
   const { data } = await api.get("/projects");
   const savedId = localStorage.getItem("llmtrace_project_id");
-  currentProject = data.find((p) => p.id === savedId) || data[0] || null;
+  const saved = data.find((p) => p.id === savedId);
+  if (saved) {
+    currentProject = saved;
+    return currentProject;
+  }
+  // 无历史选择：默认进最近有数据的项目（避免空项目全零像坏了一样）
+  const byLatest = [...data].sort((a, b) =>
+    String(b.latest_trace_at || "").localeCompare(String(a.latest_trace_at || "")));
+  currentProject = byLatest[0] || null;
   return currentProject;  // 无项目时返回 null，由前端引导创建
 }
 

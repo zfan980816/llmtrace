@@ -159,6 +159,11 @@ Tests: `python smoke_test.py && python auth_test.py && ...` (see `backend/*_test
 
 See [.env.example](.env.example) — database URL, JWT secret, seed switch.
 
+## Known limitations
+
+- Verification codes, login rate limiting, and send cooldowns are stored in-process.
+  Run a single uvicorn worker per deployment; move to Redis before scaling horizontally.
+
 ## License
 
 [Apache-2.0](LICENSE)

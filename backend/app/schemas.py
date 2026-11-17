@@ -20,6 +20,7 @@ class ProjectOut(BaseModel):
     api_key: str
     mask_pii: bool
     retention_days: int
+    latest_trace_at: datetime | None = None
     created_at: datetime
 
 

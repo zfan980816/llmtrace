@@ -5,7 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Project, User
+from sqlalchemy import func
+
+from ..models import Project, Trace, User
 from ..schemas import ProjectCreate, ProjectOut, ProjectSettingsUpdate
 from ..services.audit import record_audit
 from ..services.security import get_current_user, require_admin, require_member
@@ -60,7 +62,26 @@ def list_projects(user: User = Depends(get_current_user), db: Session = Depends(
         if user.team_id is None:
             return []
         q = q.filter(Project.team_id == user.team_id)
-    return q.order_by(Project.created_at).all()
+    projects = q.order_by(Project.created_at).all()
+    # 最近一次 trace 时间（前端默认选中最近活跃项目用）
+    latest: dict = {}
+    if projects:
+        rows = (
+            db.query(Trace.project_id, func.max(Trace.start_time))
+            .filter(Trace.project_id.in_([p.id for p in projects]))
+            .group_by(Trace.project_id)
+            .all()
+        )
+        latest = {pid: ts for pid, ts in rows}
+    return [
+        ProjectOut(
+            id=p.id, name=p.name, api_key=p.api_key,
+            mask_pii=p.mask_pii, retention_days=p.retention_days,
+            created_at=p.created_at, team_id=p.team_id,
+            latest_trace_at=latest.get(p.id),
+        )
+        for p in projects
+    ]
 
 
 @router.patch("/{project_id}", response_model=ProjectOut)
