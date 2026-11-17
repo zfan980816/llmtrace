@@ -10,7 +10,9 @@ import { t, useLang } from "../i18n";
 
 export default function Login({ onLogin }) {
   const lang = useLang();
-  const [mode, setMode] = useState("password");  // password | email | register | forgot
+  const [mode, setMode] = useState(
+    () => localStorage.getItem("llmtrace_login_mode") || "password"
+  );  // password | email | register | forgot
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -20,6 +22,7 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [showPw, setShowPw] = useState(false);
 
   useEffect(() => {
     const qp = new URLSearchParams(window.location.search);
@@ -39,7 +42,11 @@ export default function Login({ onLogin }) {
   }, [cooldown]);
 
   const finishLogin = (user) => onLogin(user);
-  const go = (m) => { setMode(m); setError(null); setNotice(null); setDevCode(null); setCode(""); };
+  const go = (m) => {
+    setMode(m);
+    localStorage.setItem("llmtrace_login_mode", m);
+    setError(null); setNotice(null); setDevCode(null); setCode("");
+  };
 
   const submitPassword = async (e) => {
     e.preventDefault();
@@ -116,6 +123,7 @@ export default function Login({ onLogin }) {
       await resetPassword(email, code, password);
       setNotice(null);
       go("password");
+      setUsername(email);
       setNotice(t("login.resetOk"));
     } catch (err) {
       setError(err.response?.data?.detail || "重置失败，请稍后重试");
@@ -160,8 +168,13 @@ export default function Login({ onLogin }) {
           <>
             <input placeholder={t("login.username")} value={username} autoFocus
               onChange={(e) => setUsername(e.target.value)} />
-            <input placeholder={t("login.password")} type="password" value={password}
-              onChange={(e) => setPassword(e.target.value)} />
+            <div className="pw-row">
+              <input placeholder={t("login.password")} type={showPw ? "text" : "password"} value={password}
+                onChange={(e) => setPassword(e.target.value)} />
+              <button type="button" className="pw-eye" onClick={() => setShowPw(!showPw)} tabIndex={-1}>
+                <Icon name={showPw ? "eye-off" : "eye"} size={14} />
+              </button>
+            </div>
             {error && <div className="error-text">{error}</div>}
             {notice && <div className="error-text" style={{ color: "#34d399" }}>{notice}</div>}
             <button className="btn" disabled={busy || !username || !password}>
@@ -186,8 +199,13 @@ export default function Login({ onLogin }) {
               onChange={(e) => setEmail(e.target.value)} />
             {codeRow}
             {(mode === "register" || mode === "forgot") && (
-              <input placeholder={t("login.setPassword")} type="password" value={password}
-                onChange={(e) => setPassword(e.target.value)} />
+              <div className="pw-row">
+                <input placeholder={t("login.setPassword")} type={showPw ? "text" : "password"} value={password}
+                  onChange={(e) => setPassword(e.target.value)} />
+                <button type="button" className="pw-eye" onClick={() => setShowPw(!showPw)} tabIndex={-1}>
+                  <Icon name={showPw ? "eye-off" : "eye"} size={14} />
+                </button>
+              </div>
             )}
             {devCode && <div className="error-text">内网试用模式，验证码：{devCode}</div>}
             {notice && <div className="error-text" style={{ color: "#34d399" }}>{notice}</div>}

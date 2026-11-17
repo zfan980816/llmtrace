@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
     frontend_url: str = "http://127.0.0.1:5173"
     jwt_secret: str = DEFAULT_JWT_SECRET
-    token_expire_hours: int = 72
+    token_expire_hours: int = 168
     static_dir: str = str(_REPO_ROOT / "frontend" / "dist")
     # production=true 时：使用默认 JWT_SECRET 将拒绝启动（防止密钥泄漏进生产）
     production: bool = False

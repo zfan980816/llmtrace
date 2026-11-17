@@ -175,9 +175,13 @@ def _unique_username(db, base: str) -> str:
 
 @router.post("/login")
 def login(payload: LoginIn, request: Request, db: Session = Depends(get_db)):
-    key = payload.username.lower() + "|" + _client_ip(request)
+    lookup = payload.username.strip()
+    email_lookup = lookup.lower()
+    key = email_lookup + "|" + _client_ip(request)
     _check_rate(key)
-    user = db.query(User).filter(User.username == payload.username).first()
+    user = db.query(User).filter(User.username == lookup).first()
+    if user is None:
+        user = db.query(User).filter(User.email == email_lookup).first()
     if user is None or not user.is_active or not verify_password(payload.password, user.password_hash):
         _record_fail(key)
         raise HTTPException(status_code=401, detail="用户名或密码错误")

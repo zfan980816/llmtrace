@@ -76,14 +76,14 @@ try:
     assert c == 400 and "已注册" in r.get("detail", ""), f"dup send-code: {c} {r}"
     print("dup email send-code: 400 OK")
 
-    # 7. 密码登录（注册时设的密码）
-    c, r = call("POST", "/api/auth/login", {"username": EMAIL, "password": "password123"})
-    # 登录用的是 username 字段——注册时 username 是邮箱 local part
-    assert c == 401, f"login by email-as-username should 401, got {c}"
+    # 7. 密码登录：邮箱或用户名都可用
     username = "newuser"
+    c, r = call("POST", "/api/auth/login", {"username": EMAIL, "password": "password123"})
+    assert c == 200, f"login by email: {c} {r}"
+    print("login by full email: OK")
     c, r = call("POST", "/api/auth/login", {"username": username, "password": "password123"})
     assert c == 200, f"password login: {c} {r}"
-    print("password login after register: OK")
+    print("login by username: OK")
 
     # 8. 忘记密码（存在邮箱 → 真发，dev 模式返回码）
     c, r = call("POST", "/api/auth/forgot/send-code", {"email": EMAIL})
