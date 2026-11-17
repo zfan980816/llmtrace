@@ -266,6 +266,11 @@ class PasswordResetIn(BaseModel):
     new_password: str
 
 
+class PasswordChangeIn(BaseModel):
+    old_password: str
+    new_password: str
+
+
 class LoginIn(BaseModel):
     username: str
     password: str

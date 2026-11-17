@@ -5,7 +5,6 @@ import threading
 import time
 import uuid
 
-from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
@@ -13,7 +12,8 @@ from ..database import get_db
 from ..config import settings
 from ..models import AuditLog, User
 from ..schemas import (AuditLogOut, EmailCodeIn, EmailLoginIn, LoginIn,
-                       PasswordResetIn, RegisterIn, UserCreate, UserOut, UserUpdate)
+                       PasswordChangeIn, PasswordResetIn, RegisterIn,
+                       UserCreate, UserOut, UserUpdate)
 from ..services.audit import record_audit
 from ..services.email import send_email_code
 from ..services.security import (
@@ -101,6 +101,8 @@ def _verify_consume(email: str, purpose: str, code: str) -> bool:
     return ok
 
 
+# ---- 登录：邮箱验证码（新邮箱自动注册 viewer）----
+
 @router.post("/email-code")
 def email_code(payload: EmailCodeIn, request: Request, db: Session = Depends(get_db)):
     """发送邮箱验证码。同邮箱 60s 一条；SMTP 未配置时内网试用模式直接返回 dev_code。"""
@@ -147,7 +149,7 @@ def email_login(payload: EmailLoginIn, request: Request, db: Session = Depends(g
     return {"token": create_token(user), "user": UserOut.model_validate(user)}
 
 
-
+# ---- 登录：账号密码 ----
 
 @router.post("/login")
 def login(payload: LoginIn, request: Request, db: Session = Depends(get_db)):
@@ -162,18 +164,15 @@ def login(payload: LoginIn, request: Request, db: Session = Depends(get_db)):
     return {"token": create_token(user), "user": UserOut.model_validate(user)}
 
 
+# ---- 当前用户：身份 + 自助改密 ----
+
 @router.get("/me", response_model=UserOut)
 def me(user: User = Depends(get_current_user)):
     return user
 
-class PasswordChange(BaseModel):
-    old_password: str
-    new_password: str
-
-
 @router.patch("/me/password")
 def change_own_password(
-    payload: PasswordChange,
+    payload: PasswordChangeIn,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -186,82 +185,6 @@ def change_own_password(
     db.commit()
     record_audit(db, user, "user.change_password", user.username, {})
     return {"ok": True}
-
-
-
-
-@router.get("/users", response_model=list[UserOut])
-def list_users(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
-    return db.query(User).order_by(User.created_at).all()
-
-
-@router.post("/users", response_model=UserOut, status_code=201)
-def create_user(
-    payload: UserCreate,
-    admin: User = Depends(require_admin),
-    db: Session = Depends(get_db),
-):
-    if payload.role not in VALID_ROLES:
-        raise HTTPException(status_code=422, detail=f"role must be one of {VALID_ROLES}")
-    exists = db.query(User).filter(User.username == payload.username).first()
-    if exists:
-        raise HTTPException(status_code=409, detail="用户名已存在")
-    user = User(
-        username=payload.username,
-        display_name=payload.display_name or payload.username,
-        role=payload.role,
-        password_hash=hash_password(payload.password),
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    record_audit(db, admin, "user.create", user.username, {"role": user.role})
-    db.commit()
-    return user
-
-
-@router.patch("/users/{user_id}", response_model=UserOut)
-def update_user(
-    user_id: uuid.UUID,
-    payload: UserUpdate,
-    admin: User = Depends(require_admin),
-    db: Session = Depends(get_db),
-):
-    user = db.get(User, user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="用户不存在")
-    data = payload.model_dump(exclude_unset=True)
-    if "role" in data:
-        if data["role"] not in VALID_ROLES:
-            raise HTTPException(status_code=422, detail=f"role must be one of {VALID_ROLES}")
-        if user.id == admin.id and data["role"] != "admin":
-            raise HTTPException(status_code=400, detail="不能降级自己的管理员角色")
-        user.role = data.pop("role")
-    if "is_active" in data:
-        if user.id == admin.id and data["is_active"] is False:
-            raise HTTPException(status_code=400, detail="不能停用自己的账号")
-        user.is_active = data.pop("is_active")
-    if data.get("password"):
-        user.password_hash = hash_password(data.pop("password"))
-    if data.get("display_name") is not None:
-        user.display_name = data.pop("display_name")
-    db.commit()
-    db.refresh(user)
-    record_audit(db, admin, "user.update", user.username,
-                 payload.model_dump(exclude_unset=True, exclude={"password"}))
-    db.commit()
-    return user
-
-
-@router.get("/audit-logs", response_model=list[AuditLogOut])
-def audit_logs(
-    limit: int = 100,
-    admin: User = Depends(require_admin),
-    db: Session = Depends(get_db),
-):
-    return db.query(AuditLog).order_by(AuditLog.created_at.desc()).limit(min(limit, 500)).all()
-
-
 
 # ---- 邮箱注册（验码建号）与忘记密码/重置（参考 travel_plan 流程口径）----
 
@@ -367,3 +290,77 @@ def reset_password(payload: PasswordResetIn, request: Request, db: Session = Dep
     with _fails_lock:
         _login_fails.pop(key, None)
     return {"ok": True}
+
+
+# ---- 用户与审计（仅管理员）----
+
+@router.get("/users", response_model=list[UserOut])
+def list_users(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    return db.query(User).order_by(User.created_at).all()
+
+
+@router.post("/users", response_model=UserOut, status_code=201)
+def create_user(
+    payload: UserCreate,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    if payload.role not in VALID_ROLES:
+        raise HTTPException(status_code=422, detail=f"role must be one of {VALID_ROLES}")
+    exists = db.query(User).filter(User.username == payload.username).first()
+    if exists:
+        raise HTTPException(status_code=409, detail="用户名已存在")
+    user = User(
+        username=payload.username,
+        display_name=payload.display_name or payload.username,
+        role=payload.role,
+        password_hash=hash_password(payload.password),
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    record_audit(db, admin, "user.create", user.username, {"role": user.role})
+    db.commit()
+    return user
+
+
+@router.patch("/users/{user_id}", response_model=UserOut)
+def update_user(
+    user_id: uuid.UUID,
+    payload: UserUpdate,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    data = payload.model_dump(exclude_unset=True)
+    if "role" in data:
+        if data["role"] not in VALID_ROLES:
+            raise HTTPException(status_code=422, detail=f"role must be one of {VALID_ROLES}")
+        if user.id == admin.id and data["role"] != "admin":
+            raise HTTPException(status_code=400, detail="不能降级自己的管理员角色")
+        user.role = data.pop("role")
+    if "is_active" in data:
+        if user.id == admin.id and data["is_active"] is False:
+            raise HTTPException(status_code=400, detail="不能停用自己的账号")
+        user.is_active = data.pop("is_active")
+    if data.get("password"):
+        user.password_hash = hash_password(data.pop("password"))
+    if data.get("display_name") is not None:
+        user.display_name = data.pop("display_name")
+    db.commit()
+    db.refresh(user)
+    record_audit(db, admin, "user.update", user.username,
+                 payload.model_dump(exclude_unset=True, exclude={"password"}))
+    db.commit()
+    return user
+
+
+@router.get("/audit-logs", response_model=list[AuditLogOut])
+def audit_logs(
+    limit: int = 100,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    return db.query(AuditLog).order_by(AuditLog.created_at.desc()).limit(min(limit, 500)).all()
