@@ -21,6 +21,12 @@ services:
       DATABASE_URL: postgresql+psycopg://llmtrace:llmtrace@db:5432/llmtrace
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production-with-a-long-random-string}
       SEED_DEMO: ${SEED_DEMO:-true}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      EMAIL_DEFAULT_ROLE: ${EMAIL_DEFAULT_ROLE:-viewer}
     ports:
       - "8000:8000"
     depends_on:
