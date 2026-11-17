@@ -140,13 +140,13 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
+      {noProjects && (
+        <div className="team-banner">
+          <span>你的团队还没有监控项目。创建一个项目，用生成的 API Key 接入你的应用。</span>
+          <button className="btn" onClick={onNew}>创建项目</button>
+        </div>
+      )}
       <div className="layout">
-        {noProjects && (
-          <div className="team-banner">
-            <span>你的团队还没有监控项目。创建一个项目，用生成的 API Key 接入你的应用。</span>
-            <button className="btn" onClick={onNew}>创建项目</button>
-          </div>
-        )}
         <aside className="sidebar">
           <div className="logo">
             <span className="logo-mark"><Icon name="radar" size={16} /></span>
