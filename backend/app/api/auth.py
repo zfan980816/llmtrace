@@ -5,7 +5,7 @@ import threading
 import time
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -25,6 +25,7 @@ from ..services.security import (
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 VALID_ROLES = ("admin", "member", "viewer")
+MIN_PASSWORD_LEN = 8
 
 # ---- 登录限速：同 用户名+IP 每 60s 窗口最多 5 次失败，成功登录清零 ----
 _FAIL_WINDOW = 60.0
@@ -43,8 +44,17 @@ def _client_ip(request) -> str:
 def _check_rate(key: str) -> None:
     now = time.monotonic()
     with _fails_lock:
+        # 顺手清掉当前 key 的过期记录；键数超上限时全表清一次过期键（防无界增长）
+        if len(_login_fails) > 500:
+            for k in [k for k, v in _login_fails.items()
+                      if not v or now - v[-1] >= _FAIL_WINDOW]:
+                _login_fails.pop(k, None)
         hits = [t for t in _login_fails.get(key, []) if now - t < _FAIL_WINDOW]
-        _login_fails[key] = hits
+        if hits:
+            _login_fails[key] = hits
+        else:
+            _login_fails.pop(key, None)
+            hits = []
         if len(hits) >= _FAIL_LIMIT:
             retry = int(_FAIL_WINDOW - (now - hits[0])) + 1
             raise HTTPException(status_code=429, detail=f"尝试过于频繁，请 {retry}s 后重试")
@@ -101,14 +111,20 @@ def _verify_consume(email: str, purpose: str, code: str) -> bool:
     return ok
 
 
+def _clean_email(raw: str) -> str:
+    """去空白 + 转小写 + 格式校验（不合格抛 422）。"""
+    email = raw.strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=422, detail="邮箱格式不正确")
+    return email
+
+
 # ---- 登录：邮箱验证码（新邮箱自动注册 viewer）----
 
 @router.post("/email-code")
 def email_code(payload: EmailCodeIn, request: Request, db: Session = Depends(get_db)):
     """发送邮箱验证码。同邮箱 60s 一条；SMTP 未配置时内网试用模式直接返回 dev_code。"""
-    email = payload.email.strip().lower()
-    if not _EMAIL_RE.match(email):
-        raise HTTPException(status_code=422, detail="邮箱格式不正确")
+    email = _clean_email(payload.email)
     _check_rate("emailcode:" + email + "|" + _client_ip(request))
     code = _issue_code(email, "login")
     sent = send_email_code(email, code)
@@ -133,10 +149,8 @@ def email_login(payload: EmailLoginIn, request: Request, db: Session = Depends(g
         if user is not None and not user.email:
             user.email = email
     if user is None:
-        local = email.split("@")[0][:40] or "user"
-        username = local
-        if db.query(User).filter(User.username == username).first() is not None:
-            username = f"{local}-{secrets.token_hex(2)}"
+        local = email.split("@")[0]
+        username = _unique_username(db, local)
         user = User(username=username, display_name=local[:30], email=email,
                     role=settings.email_default_role, password_hash="", is_active=True)
         db.add(user)
@@ -147,6 +161,14 @@ def email_login(payload: EmailLoginIn, request: Request, db: Session = Depends(g
     with _fails_lock:
         _login_fails.pop(key, None)
     return {"token": create_token(user), "user": UserOut.model_validate(user)}
+
+
+def _unique_username(db, base: str) -> str:
+    """用户名去重：冲突时追加 4 位 hex 后缀。"""
+    base = base[:40] or "user"
+    if db.query(User).filter(User.username == base).first() is None:
+        return base
+    return f"{base}-{secrets.token_hex(2)}"
 
 
 # ---- 登录：账号密码 ----
@@ -178,7 +200,7 @@ def change_own_password(
 ):
     if not verify_password(payload.old_password, user.password_hash):
         raise HTTPException(status_code=400, detail="旧密码错误")
-    if len(payload.new_password) < 8:
+    if len(payload.new_password) < MIN_PASSWORD_LEN:
         raise HTTPException(status_code=422, detail="新密码至少 8 位")
     user.password_hash = hash_password(payload.new_password)
     user.must_change_password = False
@@ -200,9 +222,7 @@ def _user_by_email(db: Session, email: str) -> User | None:
 @router.post("/register/send-code")
 def register_send_code(payload: EmailCodeIn, request: Request, db: Session = Depends(get_db)):
     """注册验证码：已注册邮箱直接 400（注册流程本就会暴露该状态，提前明示换体验）。"""
-    email = payload.email.strip().lower()
-    if not _EMAIL_RE.match(email):
-        raise HTTPException(status_code=422, detail="邮箱格式不正确")
+    email = _clean_email(payload.email)
     if _user_by_email(db, email) is not None:
         raise HTTPException(status_code=400, detail="该邮箱已注册，请直接登录")
     left = _cooldown_left(f"register:{email}")
@@ -223,16 +243,14 @@ def register(payload: RegisterIn, request: Request, db: Session = Depends(get_db
     email = payload.email.strip().lower()
     key = "register:" + email + "|" + _client_ip(request)
     _check_rate(key)
-    if len(payload.password) < 8:
+    if len(payload.password) < MIN_PASSWORD_LEN:
         raise HTTPException(status_code=422, detail="密码至少 8 位")
     if not _verify_consume(email, "register", payload.code):
         _record_fail(key)
         raise HTTPException(status_code=400, detail="验证码错误或已过期")
     if _user_by_email(db, email) is not None:
         raise HTTPException(status_code=400, detail="该邮箱已注册")
-    username = (payload.username or email.split("@")[0])[:40]
-    if db.query(User).filter(User.username == username).first() is not None:
-        username = f"{username}-{secrets.token_hex(2)}"
+    username = _unique_username(db, payload.username or email.split("@")[0])
     user = User(username=username, display_name=(payload.username or username)[:30],
                 email=email, role=settings.email_default_role,
                 password_hash=hash_password(payload.password), is_active=True)
@@ -249,9 +267,7 @@ def register(payload: RegisterIn, request: Request, db: Session = Depends(get_db
 @router.post("/forgot/send-code")
 def forgot_send_code(payload: EmailCodeIn, request: Request, db: Session = Depends(get_db)):
     """忘记密码发码：响应恒 {sent:true}（防枚举注册名单）。"""
-    email = payload.email.strip().lower()
-    if not _EMAIL_RE.match(email):
-        raise HTTPException(status_code=422, detail="邮箱格式不正确")
+    email = _clean_email(payload.email)
     left = _cooldown_left(f"reset:{email}")
     if left:
         raise HTTPException(status_code=429, detail=f"发送太频繁，请 {left}s 后再试")
@@ -274,7 +290,7 @@ def reset_password(payload: PasswordResetIn, request: Request, db: Session = Dep
     email = payload.email.strip().lower()
     key = "reset:" + email + "|" + _client_ip(request)
     _check_rate(key)
-    if len(payload.new_password) < 8:
+    if len(payload.new_password) < MIN_PASSWORD_LEN:
         raise HTTPException(status_code=422, detail="新密码至少 8 位")
     if not _verify_consume(email, "reset", payload.code):
         _record_fail(key)
