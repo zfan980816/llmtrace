@@ -28,3 +28,6 @@ frontend/dist/
 
 # local installer leftovers
 _docker_msi/
+
+# sdk build artifacts
+sdk/dist/
