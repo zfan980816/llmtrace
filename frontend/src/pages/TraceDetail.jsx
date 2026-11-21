@@ -9,6 +9,10 @@ import Markdown from "../components/Markdown";
 import MessagesView, { messagesOf, normalizeMessages } from "../components/MessagesView";
 import { t, useLang } from "../i18n";
 
+// deepagents / LangGraph 的包装层 span：对排查无信息量，默认折叠隐藏
+const WRAPPER_RE = /Middleware\.|wrap_model_call|wrap_tool_call|before_agent|after_agent|after_model|_ParentNotifier|PromptCaching|UnsupportedContent|ModelRefusal|Summarization/i;
+const isWrapperSpan = (s) => WRAPPER_RE.test(s.name || "");
+
 const TYPE_META = {
   llm: { icon: "sparkle", color: "#a78bfa", label: "LLM" },
   tool: { icon: "wrench", color: "#34d399", label: "工具" },
@@ -52,6 +56,7 @@ export default function TraceDetail() {
   const [trace, setTrace] = useState(null);
   const [selected, setSelected] = useState(null);
   const [tab, setTab] = useState("input");
+  const [showWrappers, setShowWrappers] = useState(false);
   const [error, setError] = useState(null);
   const [collapsed, setCollapsed] = useState(() => new Set());
   const [fbs, setFbs] = useState([]);
@@ -67,6 +72,9 @@ export default function TraceDetail() {
         setTrace(r.data);
         const root = r.data.spans.find((s) => !s.parent_span_id);
         setSelected((root || r.data.spans[0] || {}).id || null);
+        const sel0 = root || r.data.spans[0];
+        const hasMsgs = sel0 && (normalizeMessages(sel0.input) || normalizeMessages(sel0.output));
+        setTab(hasMsgs && hasMsgs.length ? "messages" : sel0?.input != null ? "input" : "feedback");
       } catch (e) {
         setError(String(e.response?.data?.detail || e.message));
         return;
@@ -96,25 +104,66 @@ export default function TraceDetail() {
     } catch { /* ignore */ }
   };
 
-  const tree = useMemo(() => {
-    if (!trace) return [];
+  const { tree, effLatency } = useMemo(() => {
+    if (!trace) return { tree: [], effLatency: new Map() };
+    const spans = trace.spans;
+    const byId = new Map(spans.map((s) => [s.id, s]));
+    const isWrapper = (s) => !showWrappers && isWrapperSpan(s);
+
+    // 有效父级：包装层的子节点上提到最近的非包装祖先
+    const effParent = new Map();
+    for (const s of spans) {
+      let p = s.parent_span_id || null;
+      while (p) {
+        const ps = byId.get(p);
+        if (!ps) { p = null; break; }
+        if (!isWrapper(ps)) break;
+        p = ps.parent_span_id || null;
+      }
+      effParent.set(s.id, p);
+    }
+    // 根节点本身是包装层时，提升它的父级（无父级则保持根）
+    const rootsRaw = spans.filter((s) => !effParent.get(s.id));
+
     const byParent = {};
     const hasKids = new Set();
-    for (const s of trace.spans) {
-      if (s.parent_span_id) hasKids.add(s.parent_span_id);
-      const key = s.parent_span_id || "__root__";
+    for (const s of spans) {
+      if (isWrapper(s)) continue;
+      const key = effParent.get(s.id) || "__root__";
       (byParent[key] = byParent[key] || []).push(s);
+      if (key !== "__root__") hasKids.add(key);
     }
+
+    // 时长兜底：span 自己 latency 为 0/缺失时，取直接子节点的 max(end)-min(start)
+    const effLatency = new Map();
+    const kidsOf = {};
+    for (const s of spans) (kidsOf[s.parent_span_id || "__root__"] = kidsOf[s.parent_span_id || "__root__"] || []).push(s);
+    const t = (v) => (v ? Date.parse(v) : NaN);
+    for (const s of spans) {
+      if (s.latency_ms) { effLatency.set(s.id, s.latency_ms); continue; }
+      const kids = kidsOf[s.id] || [];
+      let mn = Infinity, mx = -Infinity;
+      for (const k of kids) {
+        const a = t(k.start_time), b = t(k.end_time);
+        if (!isNaN(a) && a < mn) mn = a;
+        if (!isNaN(b) && b > mx) mx = b;
+      }
+      if (mx > mn) effLatency.set(s.id, Math.round(mx - mn));
+    }
+
     const rows = [];
+    const seen = new Set();
     const walk = (list, depth) => {
       for (const s of list) {
+        if (seen.has(s.id)) continue;
+        seen.add(s.id);
         rows.push({ span: s, depth, expandable: hasKids.has(s.id) });
         if (!collapsed.has(s.id)) walk(byParent[s.id] || [], depth + 1);
       }
     };
     walk(byParent["__root__"] || [], 0);
-    return rows;
-  }, [trace, collapsed]);
+    return { tree: rows, effLatency };
+  }, [trace, collapsed, showWrappers]);
 
   const toggleNode = (id) => {
     setCollapsed((prev) => {
@@ -171,7 +220,7 @@ export default function TraceDetail() {
             {trace.name}
           </h1>
           <p className="muted small">
-            {new Date(trace.start_time).toLocaleString("zh-CN")} · {fmtLatency(trace.latency_ms)} ·{" "}
+            {new Date(trace.start_time).toLocaleString("zh-CN")} · {fmtLatency(trace.latency_ms || effLatency.get(trace.spans.find((s) => !s.parent_span_id)?.id) || 0)} ·{" "}
             {trace.total_tokens.toLocaleString()} tokens · ${trace.cost.toFixed(5)}
             {trace.session_id && (
               <>
@@ -191,6 +240,11 @@ export default function TraceDetail() {
 
       <div className="split">
         <div className="tree">
+          <label className="wrapper-toggle" title="deepagents/LangGraph 的包装层 span，排查时通常无用">
+            <input type="checkbox" checked={showWrappers}
+              onChange={(e) => setShowWrappers(e.target.checked)} />
+            显示中间件包装层
+          </label>
           {tree.map(({ span: s, depth, expandable }) => {
             const meta = TYPE_META[s.span_type] || TYPE_META.chain;
             const tk = fmtTokens((s.prompt_tokens || 0) + (s.completion_tokens || 0));
@@ -218,7 +272,7 @@ export default function TraceDetail() {
                     <span className="tree-name" title={s.name}>{s.name}</span>
                   </div>
                   <div className="tree-line2">
-                    <span className={"lat-chip " + latClass(s.latency_ms)}><Icon name="clock" size={10} /> {fmtLatency(s.latency_ms)}</span>
+                    <span className={"lat-chip " + latClass(s.latency_ms)}><Icon name="clock" size={10} /> {fmtLatency(effLatency.get(s.id) ?? s.latency_ms)}</span>
                     {tk && <span className="tok-chip"><Icon name="zap" size={10} /> {tk}</span>}
                     {s.model && <span className="model-chip">{s.model}</span>}
                   </div>
@@ -239,7 +293,7 @@ export default function TraceDetail() {
               <span className="chip">{selMeta.label}</span>
               {sel.model && <span className="chip">{sel.model}</span>}
               <span className={"chip " + sel.status}>{sel.status}</span>
-              <span className={"chip lat-chip " + latClass(sel.latency_ms)}>{fmtLatency(sel.latency_ms)}</span>
+              <span className={"chip lat-chip " + latClass(sel.latency_ms)}>{fmtLatency(effLatency.get(sel.id) ?? sel.latency_ms)}</span>
               {selTotalTokens > 0 && <span className="chip">tokens {selTotalTokens.toLocaleString()}</span>}
               {sel.cost > 0 && <span className="chip">${sel.cost.toFixed(5)}</span>}
             </div>
