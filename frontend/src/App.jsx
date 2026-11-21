@@ -3,6 +3,7 @@ import { NavLink, Route, Routes, useLocation } from "react-router-dom";
 import api, { createProject, ensureProject, fetchMe, logout, onProjectChange, resetProject, setToken, switchProject } from "./api";
 import { AuthContext } from "./auth";
 import Icon from "./components/Icon";
+import ApiKeyModal from "./components/ApiKeyModal";
 import { t, setLang, useLang } from "./i18n";
 import Alerts from "./pages/Alerts";
 import Dashboard from "./pages/Dashboard";
@@ -27,6 +28,7 @@ export default function App() {
   const [projects, setProjects] = useState([]);
   const [current, setCurrent] = useState(null);
   const [version, setVersion] = useState(0);
+  const [keyModal, setKeyModal] = useState(null); // {project}
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -83,6 +85,7 @@ export default function App() {
     await switchProject(p.id);
     const { data } = await api.get("/projects");
     setProjects(data);
+    setKeyModal({ project: p });  // 新建即展示 Key，接入引导一步到位
   };
 
   const doLogout = () => {
@@ -159,11 +162,19 @@ export default function App() {
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
-            {user.role !== "viewer" && (
-              <button className="project-new" onClick={onNew}>
-                <Icon name="plus" size={12} /> {t("nav.newProject")}
-              </button>
-            )}
+            <div className="project-actions">
+              {current && user.role !== "viewer" && (
+                <button className="project-key" title="查看项目 API Key"
+                  onClick={() => setKeyModal({ project: current })}>
+                  <Icon name="dollar-sign" size={12} /> Key
+                </button>
+              )}
+              {user.role !== "viewer" && (
+                <button className="project-new" onClick={onNew}>
+                  <Icon name="plus" size={12} /> {t("nav.newProject")}
+                </button>
+              )}
+            </div>
           </div>
 
           <nav>
@@ -208,6 +219,17 @@ export default function App() {
             <Route path="/users" element={<Users />} />
           </Routes>
         </main>
+      {keyModal && (
+        <ApiKeyModal
+          project={keyModal.project}
+          isAdmin={isAdmin}
+          onClose={() => setKeyModal(null)}
+          onRotated={(fresh) => {
+            setKeyModal({ project: fresh });
+            setProjects((prev) => prev.map((x) => (x.id === fresh.id ? fresh : x)));
+          }}
+        />
+      )}
       </div>
     </AuthContext.Provider>
   );

@@ -76,6 +76,11 @@ export async function resetPassword(email, code, newPassword) {
   return data;
 }
 
+export async function rotateProjectKey(projectId) {
+  const { data } = await api.post(`/projects/${projectId}/rotate-key`);
+  return data;
+}
+
 export async function createShareLink(traceId) {
   const { data } = await api.post(`/traces/${traceId}/share`);
   return data;
