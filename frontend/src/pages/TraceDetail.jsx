@@ -180,7 +180,28 @@ export default function TraceDetail() {
   const selMeta = TYPE_META[sel.span_type] || TYPE_META.chain;
   const inMsgs = normalizeMessages(sel.input);
   const outMsgs = normalizeMessages(sel.output);
-  const llmPair = sel.span_type === "llm" && inMsgs;
+  // 任何 span（不只是 llm）只要能解析出消息就用消息卡片渲染——LangSmith 式对话视图
+  const hasInMsgs = !!(inMsgs && inMsgs.length);
+  const hasOutMsgs = !!(outMsgs && outMsgs.length);
+  const llmPair = hasInMsgs;
+  // 对话视图：LangGraph 根 span 的 output.messages 通常是完整最终 state（以 input 为前缀），
+  // 直接用；否则 input+output 拼接，避免重复显示历史
+  const fullMsgs = (() => {
+    if (!hasOutMsgs) return inMsgs;
+    if (!hasInMsgs) return outMsgs;
+    // 角色归一化：human/user、ai/assistant 视为同一角色，避免前缀比对失败导致历史重复
+    const sig = (m) => {
+      const r = m.role || m.type;
+      const norm = r === "human" ? "user" : r === "ai" ? "assistant" : r;
+      return JSON.stringify([norm, m.content]);
+    };
+    if (outMsgs.length >= inMsgs.length) {
+      const inSigs = inMsgs.map(sig);
+      const head = outMsgs.slice(0, inMsgs.length).map(sig);
+      if (head.every((s, i) => s === inSigs[i])) return outMsgs;
+    }
+    return [...inMsgs, ...outMsgs];
+  })();
   const chatText = sel.input != null && typeof sel.input !== "object";
   const selTotalTokens = (sel.prompt_tokens || 0) + (sel.completion_tokens || 0);
 
@@ -348,13 +369,15 @@ export default function TraceDetail() {
             )}
             <div className="detail-body" style={tab === "feedback" ? { display: "none" } : undefined}>
               {tab === "input" && (
-                llmPair ? <MessagesView messages={inMsgs} outputMessage={outMsgs ? outMsgs[outMsgs.length - 1] : null} /> :
+                hasInMsgs || hasOutMsgs ? <MessagesView
+                  messages={sel.span_type === "llm" ? (inMsgs || []) : (fullMsgs || [])}
+                  outputMessage={sel.span_type === "llm" && hasOutMsgs ? outMsgs[outMsgs.length - 1] : null} /> :
                 chatText ? <div className="chat-block"><Markdown text={asObjectText(sel.input)} /></div> :
                 <JsonBlock title={null} icon="terminal" value={sel.input} />
               )}
               {tab === "output" && (
                 looksLikeError(sel.output) ? <JsonBlock title={null} icon="alert-triangle" value={sel.output} /> :
-                llmPair && outMsgs ? <MessagesView messages={outMsgs} /> :
+                hasOutMsgs ? <MessagesView messages={outMsgs} /> :
                 chatText || (sel.output != null && typeof sel.output === "string") ? <div className="chat-block"><Markdown text={asObjectText(sel.output)} /></div> :
                 <JsonBlock title={null} icon="message-square" value={sel.output} />
               )}

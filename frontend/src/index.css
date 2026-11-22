@@ -99817,3 +99817,9 @@ html[data-theme="light"] .stat-card:hover {
   border-bottom: 1px dashed var(--border);
 }
 .wrapper-toggle input { accent-color: #6366f1; }
+
+.msg-copy { margin-left: auto; background: none; border: none; color: var(--text-3); cursor: pointer; padding: 2px 4px; border-radius: 4px; opacity: 0; transition: opacity .12s; }
+.msg-card:hover .msg-copy { opacity: 1; }
+.msg-copy:hover { color: var(--text); background: var(--bg-elevated); }
+.tc-arg { display: flex; gap: 10px; padding: 3px 0; align-items: baseline; }
+.tc-val { white-space: pre-wrap; word-break: break-word; }
