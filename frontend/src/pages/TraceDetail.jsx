@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import api, { createShareLink } from "../api";
 import { addFeedback, listFeedback, deleteFeedback } from "../feedbackApi";
@@ -19,20 +19,6 @@ const TYPE_META = {
   retrieval: { icon: "search", color: "#818cf8", label: "检索" },
   agent: { icon: "bot", color: "#fbbf24", label: "Agent" },
   chain: { icon: "git-branch", color: "#64748b", label: "链" },
-};
-
-// 常见工具说明：让 trace 里的 ls / glob 等工具名一眼可读
-const TOOL_DOCS = {
-  ls: ["列出目录下的文件", "List files in a directory"],
-  glob: ["按模式匹配查找文件，如 *.py", "Find files matching a glob pattern"],
-  grep: ["在文件内容中搜索文本", "Search text in file contents"],
-  read_file: ["读取文件内容", "Read a file"],
-  write_file: ["写入文件", "Write a file"],
-  edit_file: ["编辑文件内容", "Edit a file"],
-  task: ["派发子任务给子代理执行", "Dispatch a subtask to a sub-agent"],
-  write_todos: ["维护任务清单", "Maintain a todo list"],
-  web_search: ["搜索网页", "Search the web"],
-  python_repl: ["执行 Python 代码", "Run Python code"],
 };
 
 function fmtLatency(ms) {
@@ -69,20 +55,13 @@ export default function TraceDetail() {
   const { id } = useParams();
   const [trace, setTrace] = useState(null);
   const [selected, setSelected] = useState(null);
+  const [tab, setTab] = useState("input");
   const [showWrappers, setShowWrappers] = useState(false);
   const [error, setError] = useState(null);
   const [collapsed, setCollapsed] = useState(() => new Set());
   const [fbs, setFbs] = useState([]);
 
   const [fbBusy, setFbBusy] = useState(false);
-  const [fbFormOpen, setFbFormOpen] = useState(false);
-  const [fbScore, setFbScore] = useState(1);
-  const panelRef = useRef(null);
-
-  useEffect(() => {
-    setFbFormOpen(false);
-    if (panelRef.current) panelRef.current.scrollTop = 0;
-  }, [selected]);
   const [shareHint, setShareHint] = useState(null);
   const [fbDraft, setFbDraft] = useState("");
 
@@ -93,7 +72,9 @@ export default function TraceDetail() {
         setTrace(r.data);
         const root = r.data.spans.find((s) => !s.parent_span_id);
         setSelected((root || r.data.spans[0] || {}).id || null);
-
+        const sel0 = root || r.data.spans[0];
+        const hasMsgs = sel0 && (normalizeMessages(sel0.input) || normalizeMessages(sel0.output));
+        setTab(hasMsgs && hasMsgs.length ? "messages" : sel0?.input != null ? "input" : "feedback");
       } catch (e) {
         setError(String(e.response?.data?.detail || e.message));
         return;
@@ -105,12 +86,11 @@ export default function TraceDetail() {
     })();
   }, [id]);
 
-  const submitFeedback = async () => {
+  const submitFeedback = async (score) => {
     setFbBusy(true);
     try {
-      await addFeedback({ trace_id: id, score: fbScore, comment: fbDraft || null });
+      await addFeedback({ trace_id: id, score, comment: fbDraft || null });
       setFbDraft("");
-      setFbFormOpen(false);
       const r = await listFeedback(id);
       setFbs(r.data);
     } catch { /* ignore */ }
@@ -204,52 +184,14 @@ export default function TraceDetail() {
   const chatText = sel.input != null && typeof sel.input !== "object";
   const selTotalTokens = (sel.prompt_tokens || 0) + (sel.completion_tokens || 0);
 
+  const TABS = [
+    ["feedback", t("tab.feedback")],
+    ["input", t("tab.input")],
+    ["output", t("tab.output")],
+    ["raw", t("tab.raw")],
+  ];
   const upCount = fbs.filter((f) => f.score === 1).length;
   const downCount = fbs.filter((f) => f.score === -1).length;
-
-  const inPreview = (v, max = 30) => {
-    if (v == null || typeof v !== "object") return null;
-    const parts = Object.entries(v).slice(0, 2).map(([k, val]) => {
-      const s = typeof val === "string" ? val : JSON.stringify(val);
-      return k + "=" + (s.length > 16 ? s.slice(0, 16) + "…" : s);
-    });
-    if (!parts.length) return null;
-    const s = parts.join(" ");
-    return s.length > max ? s.slice(0, max) + "…" : s;
-  };
-
-  const isToolSpan = sel.span_type === "tool";
-  const renderIO = (value, which) => {
-    if (value == null) return <div className="muted small" style={{ padding: "4px 2px" }}>—</div>;
-    // 工具的入参/返回值不是对话，不要误渲染成消息气泡
-    const msgs = isToolSpan ? null : normalizeMessages(value);
-    if (isToolSpan && Array.isArray(value) && value.every((x) => typeof x === "string")) {
-      return (
-        <div className="tool-out-list mono">
-          {value.map((s, i) => <div key={i} className="tool-out-item">{s}</div>)}
-        </div>
-      );
-    }
-    if (looksLikeError(value)) return <JsonBlock title={null} icon="alert-triangle" value={value} />;
-    if (msgs && msgs.length) return <MessagesView messages={msgs} />;
-    if (typeof value === "string") return <div className="chat-block"><Markdown text={value} /></div>;
-    if (typeof value === "object") {
-      const keys = Object.keys(value);
-      if (keys.length && keys.length <= 8 && keys.every((k) => typeof value[k] !== "object" || value[k] === null)) {
-        return (
-          <div className="kv-table">
-            {keys.map((k) => (
-              <div key={k} className="kv-row">
-                <div className="kv-k mono">{k}</div>
-                <div className="kv-v mono">{String(value[k])}</div>
-              </div>
-            ))}
-          </div>
-        );
-      }
-    }
-    return <JsonBlock title={null} icon={which === "input" ? "terminal" : "message-square"} value={value} />;
-  };
 
   const onShare = async () => {
     setShareHint(null);
@@ -328,10 +270,6 @@ export default function TraceDetail() {
                       <Icon name={meta.icon} size={13} />
                     </span>
                     <span className="tree-name" title={s.name}>{s.name}</span>
-                    {s.span_type === "tool" && (() => {
-                      const pv = inPreview(s.input);
-                      return pv ? <span className="tree-io-preview">{pv}</span> : null;
-                    })()}
                   </div>
                   <div className="tree-line2">
                     <span className={"lat-chip " + latClass(s.latency_ms)}><Icon name="clock" size={10} /> {fmtLatency(effLatency.get(s.id) ?? s.latency_ms)}</span>
@@ -345,7 +283,7 @@ export default function TraceDetail() {
         </div>
 
         {sel && (
-          <div className="detail-panel" ref={panelRef}>
+          <div className="detail-panel">
             <div className="detail-title">
               <span className="icon" style={{ color: selMeta.color }}><Icon name={selMeta.icon} size={17} /></span>
               {sel.name}
@@ -359,9 +297,6 @@ export default function TraceDetail() {
               {selTotalTokens > 0 && <span className="chip">tokens {selTotalTokens.toLocaleString()}</span>}
               {sel.cost > 0 && <span className="chip">${sel.cost.toFixed(5)}</span>}
             </div>
-            {sel.span_type === "tool" && TOOL_DOCS[sel.name] && (
-              <p className="detail-desc">{TOOL_DOCS[sel.name][lang === "en" ? 1 : 0]}</p>
-            )}
 
             {sel.error && (
               <div className="error-banner">
@@ -370,55 +305,28 @@ export default function TraceDetail() {
               </div>
             )}
 
-            <details className="detail-sec" open>
-              <summary>Input</summary>
-              <div className="sec-body">{renderIO(sel.input, "input")}</div>
-            </details>
+            <div className="detail-tabs">
+              {TABS.map(([v, label]) => (
+                <button key={v} className={tab === v ? "active" : ""} onClick={() => setTab(v)}>{label}</button>
+              ))}
+            </div>
 
-            <details className="detail-sec" open>
-              <summary>Output</summary>
-              <div className="sec-body">{renderIO(sel.output, "output")}</div>
-            </details>
-
-            {sel.meta && (
-              <details className="detail-sec">
-                <summary>Metadata</summary>
-                <div className="sec-body"><JsonBlock title={null} icon="layers" value={sel.meta} /></div>
-              </details>
-            )}
-
-            <details className="detail-sec fb-sec" open={fbs.length > 0}>
-              <summary>
-                {t("fb.section")}
-                {fbs.length > 0 && <span className="sec-count">{fbs.length}</span>}
-              </summary>
-              <div className="sec-body">
-                {!fbFormOpen ? (
-                  <button className="fb-add" onClick={() => setFbFormOpen(true)}>
-                    <Icon name="plus" size={13} /> {t("fb.add")}
+            {tab === "feedback" && (
+              <div className="feedback-pane">
+                <div className="fb-actions">
+                  <button className="fb-btn up" disabled={fbBusy} onClick={() => submitFeedback(1)}>
+                    <Icon name="check" size={13} /> {t("fb.accurate")} ({upCount})
                   </button>
-                ) : (
-                  <div className="fb-form">
-                    <div className="fb-score-row">
-                      <button type="button" className={"fb-pick up" + (fbScore === 1 ? " active" : "")} onClick={() => setFbScore(1)}>
-                        <Icon name="check" size={13} /> {t("fb.correct")}
-                      </button>
-                      <button type="button" className={"fb-pick down" + (fbScore === -1 ? " active" : "")} onClick={() => setFbScore(-1)}>
-                        <Icon name="x" size={13} /> {t("fb.incorrect")}
-                      </button>
-                    </div>
-                    <textarea
-                      placeholder={t("fb.placeholder")}
-                      value={fbDraft}
-                      onChange={(e) => setFbDraft(e.target.value)}
-                      rows={2}
-                    />
-                    <div className="fb-form-actions">
-                      <button className="btn sm" disabled={fbBusy} onClick={submitFeedback}>{t("fb.submit")}</button>
-                      <button className="btn sm ghost" onClick={() => { setFbFormOpen(false); setFbDraft(""); }}>{t("fb.cancel")}</button>
-                    </div>
-                  </div>
-                )}
+                  <button className="fb-btn down" disabled={fbBusy} onClick={() => submitFeedback(-1)}>
+                    <Icon name="x" size={13} /> {t("fb.wrong")} ({downCount})
+                  </button>
+                </div>
+                <textarea
+                  placeholder={t("fb.placeholder")}
+                  value={fbDraft}
+                  onChange={(e) => setFbDraft(e.target.value)}
+                  rows={2}
+                />
                 <div className="fb-list">
                   {fbs.map((f) => (
                     <div key={f.id} className={"fb-item " + (f.score === 1 ? "fb-up" : "fb-down")}>
@@ -434,18 +342,35 @@ export default function TraceDetail() {
                       </button>
                     </div>
                   ))}
-                  {!fbs.length && !fbFormOpen && <div className="muted small" style={{ padding: "6px 2px" }}>{t("fb.empty")}</div>}
+                  {!fbs.length && <div className="muted small" style={{ padding: "6px 2px" }}>{t("fb.empty")}</div>}
                 </div>
               </div>
-            </details>
-
-            <details className="detail-sec">
-              <summary>{t("detail.rawJson")}</summary>
-              <div className="sec-body raw-json">
-                <JsonBlock title="Input" icon="terminal" value={sel.input} />
-                <JsonBlock title="Output" icon="message-square" value={sel.output} />
-              </div>
-            </details>
+            )}
+            <div className="detail-body" style={tab === "feedback" ? { display: "none" } : undefined}>
+              {tab === "input" && (
+                llmPair ? <MessagesView messages={inMsgs} outputMessage={outMsgs ? outMsgs[outMsgs.length - 1] : null} /> :
+                chatText ? <div className="chat-block"><Markdown text={asObjectText(sel.input)} /></div> :
+                <JsonBlock title={null} icon="terminal" value={sel.input} />
+              )}
+              {tab === "output" && (
+                looksLikeError(sel.output) ? <JsonBlock title={null} icon="alert-triangle" value={sel.output} /> :
+                llmPair && outMsgs ? <MessagesView messages={outMsgs} /> :
+                chatText || (sel.output != null && typeof sel.output === "string") ? <div className="chat-block"><Markdown text={asObjectText(sel.output)} /></div> :
+                <JsonBlock title={null} icon="message-square" value={sel.output} />
+              )}
+              {tab === "raw" && (
+                <div className="raw-json">
+                  <JsonBlock title="Input" icon="terminal" value={sel.input} />
+                  <JsonBlock title="Output" icon="message-square" value={sel.output} />
+                  {sel.meta && (
+                    <details className="raw-meta">
+                      <summary>Metadata</summary>
+                      <JsonBlock title={null} icon="layers" value={sel.meta} />
+                    </details>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
