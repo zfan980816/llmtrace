@@ -62,6 +62,16 @@ function looksLikeError(output) {
   return output && typeof output === "object" && "error" in output;
 }
 
+// 输入/输出分区（LangSmith 式可折叠 section）
+function IoSection({ label, children }) {
+  return (
+    <details className="io-sec" open>
+      <summary>{label}</summary>
+      <div className="io-sec-body">{children}</div>
+    </details>
+  );
+}
+
 export default function TraceDetail() {
   const lang = useLang();
   const navigate = useNavigate();
@@ -201,12 +211,11 @@ export default function TraceDetail() {
   const hasInMsgs = !!(inMsgs && inMsgs.length);
   const hasOutMsgs = !!(outMsgs && outMsgs.length);
   const llmPair = hasInMsgs;
-  // 对话视图：LangGraph 根 span 的 output.messages 通常是完整最终 state（以 input 为前缀），
-  // 直接用；否则 input+output 拼接，避免重复显示历史
-  const fullMsgs = (() => {
-    if (!hasOutMsgs) return inMsgs;
+  // 输出区只显示 output 里新增的消息：root span 的 output.messages 是完整最终 state
+  // （以 input 为前缀），去掉前缀避免和输入区重复
+  const outOnly = (() => {
+    if (!hasOutMsgs) return null;
     if (!hasInMsgs) return outMsgs;
-    // 角色归一化：human/user、ai/assistant 视为同一角色，避免前缀比对失败导致历史重复
     const sig = (m) => {
       const r = m.role || m.type;
       const norm = r === "human" ? "user" : r === "ai" ? "assistant" : r;
@@ -215,9 +224,17 @@ export default function TraceDetail() {
     if (outMsgs.length >= inMsgs.length) {
       const inSigs = inMsgs.map(sig);
       const head = outMsgs.slice(0, inMsgs.length).map(sig);
-      if (head.every((s, i) => s === inSigs[i])) return outMsgs;
+      if (head.every((s, i) => s === inSigs[i])) return outMsgs.slice(inMsgs.length);
     }
-    return [...inMsgs, ...outMsgs];
+    return outMsgs;
+  })();
+  // 工具返回值去壳：{output:{content,...}} / {content:...} 直接取 content 文本
+  const outDisplay = (() => {
+    if (sel.span_type !== "tool") return sel.output;
+    let o = sel.output;
+    if (o && typeof o === "object" && "output" in o) o = o.output;
+    if (o && typeof o === "object" && o !== null && typeof o.content === "string") return o.content;
+    return o;
   })();
   const chatText = sel.input != null && typeof sel.input !== "object";
   const inPreview = (v, max = 34) => {
@@ -244,6 +261,7 @@ export default function TraceDetail() {
     ["feedback", t("tab.feedback")],
     ["input", t("tab.input")],
     ["output", t("tab.output")],
+    ["meta", t("tab.meta")],
     ["raw", t("tab.raw")],
   ];
   const upCount = fbs.filter((f) => f.score === 1).length;
@@ -423,17 +441,58 @@ export default function TraceDetail() {
             )}
             <div className="detail-body" style={tab === "feedback" ? { display: "none" } : undefined}>
               {tab === "input" && (
-                hasInMsgs || hasOutMsgs ? <MessagesView
-                  messages={sel.span_type === "llm" ? (inMsgs || []) : (fullMsgs || [])}
-                  outputMessage={sel.span_type === "llm" && hasOutMsgs ? outMsgs[outMsgs.length - 1] : null} /> :
-                chatText ? <div className="chat-block"><Markdown text={asObjectText(sel.input)} /></div> :
-                <JsonBlock title={null} icon="terminal" value={sel.input} />
+                <div>
+                  <IoSection label={t("io.input")}>
+                    {hasInMsgs ? <MessagesView messages={inMsgs} /> :
+                      chatText ? <div className="chat-block"><Markdown text={asObjectText(sel.input)} /></div> :
+                      <JsonBlock title={null} icon="terminal" value={sel.input} />}
+                  </IoSection>
+                  <IoSection label={t("io.output")}>
+                    {looksLikeError(sel.output) ? <JsonBlock title={null} icon="alert-triangle" value={sel.output} /> :
+                      hasOutMsgs ? <MessagesView messages={outOnly && outOnly.length ? outOnly : outMsgs} /> :
+                      typeof outDisplay === "string" ? <div className="chat-block"><Markdown text={outDisplay} /></div> :
+                      <JsonBlock title={null} icon="message-square" value={outDisplay} />}
+                  </IoSection>
+                </div>
               )}
               {tab === "output" && (
                 looksLikeError(sel.output) ? <JsonBlock title={null} icon="alert-triangle" value={sel.output} /> :
                 hasOutMsgs ? <MessagesView messages={outMsgs} /> :
-                chatText || (sel.output != null && typeof sel.output === "string") ? <div className="chat-block"><Markdown text={asObjectText(sel.output)} /></div> :
-                <JsonBlock title={null} icon="message-square" value={sel.output} />
+                typeof outDisplay === "string" ? <div className="chat-block"><Markdown text={outDisplay} /></div> :
+                <JsonBlock title={null} icon="message-square" value={outDisplay} />
+              )}
+              {tab === "meta" && (
+                <div className="attr-list">
+                  {[
+                    ["类型", selMeta.label],
+                    ["状态", sel.status],
+                    ["延迟", fmtLatency(effLatency.get(sel.id) ?? sel.latency_ms)],
+                    sel.model ? ["模型", sel.model] : null,
+                    selTotalTokens > 0 ? ["Tokens", selTotalTokens.toLocaleString()] : null,
+                    sel.cost > 0 ? ["费用", "$" + sel.cost.toFixed(5)] : null,
+                    ...(() => {
+                      // 嵌套对象/JSON 字符串展开成 a.b 键，便于阅读
+                      const rows = [];
+                      const walk = (prefix, v) => {
+                        if (typeof v === "string" && /^\s*[\[{]/.test(v)) {
+                          try { v = JSON.parse(v); } catch { /* keep string */ }
+                        }
+                        if (v && typeof v === "object" && !Array.isArray(v)) {
+                          for (const [k2, v2] of Object.entries(v)) walk(prefix + "." + k2, v2);
+                        } else {
+                          rows.push([prefix, typeof v === "object" ? JSON.stringify(v) : String(v)]);
+                        }
+                      };
+                      for (const [k, v] of Object.entries(sel.meta || {})) walk(k, v);
+                      return rows;
+                    })(),
+                  ].filter(Boolean).map(([k, v]) => (
+                    <div key={k} className="kv-row">
+                      <span className="kv-k mono">{k}</span>
+                      <span className="kv-v mono">{v}</span>
+                    </div>
+                  ))}
+                </div>
               )}
               {tab === "raw" && (
                 <div className="raw-json">

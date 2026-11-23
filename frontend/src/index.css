@@ -99835,3 +99835,19 @@ html[data-theme="light"] .stat-card:hover {
 .fb-pick.down.active { border-color: var(--danger); color: var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); }
 .fb-form textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-inset, transparent); color: var(--text); padding: 8px 10px; font-size: 12.5px; resize: vertical; }
 .fb-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* 输入/输出分区（LangSmith 式） */
+.io-sec { border-top: 1px solid var(--border); margin-top: 14px; }
+.io-sec:first-child { border-top: none; margin-top: 2px; }
+.io-sec > summary { cursor: pointer; user-select: none; font-size: 11px; font-weight: 650; letter-spacing: 0.7px; text-transform: uppercase; color: var(--text-3); padding: 9px 0 7px; list-style: none; display: flex; align-items: center; gap: 6px; }
+.io-sec > summary::-webkit-details-marker { display: none; }
+.io-sec > summary::before { content: ""; width: 0; height: 0; border-left: 4px solid currentColor; border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent; opacity: .7; transition: transform .15s; }
+.io-sec[open] > summary::before { transform: rotate(90deg); }
+.io-sec > summary:hover { color: var(--text-2); }
+.io-sec-body { padding-bottom: 12px; }
+/* 元数据表 */
+.attr-list { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.attr-list .kv-row { display: flex; gap: 12px; padding: 7px 12px; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+.attr-list .kv-row:last-child { border-bottom: none; }
+.attr-list .kv-k { width: 180px; flex-shrink: 0; color: var(--text-3); }
+.attr-list .kv-v { flex: 1; min-width: 0; word-break: break-word; white-space: pre-wrap; color: var(--text); }
