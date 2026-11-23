@@ -99867,3 +99867,31 @@ html[data-theme="light"] .stat-card:hover {
 /* 模型用量表：窄宽度下不折行 */
 .model-table th, .model-table td { white-space: nowrap; padding-left: 6px; padding-right: 6px; }
 .model-table td:first-child { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+
+/* 耗时构成 */
+.card-head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.lat-summ { font-size: 12px; color: var(--text-3); white-space: nowrap; padding-top: 2px; }
+.lat-summ b { color: var(--text); font-weight: 600; }
+.lat-summ .sep { margin: 0 6px; opacity: .6; }
+.lat-bar { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; margin: 14px 0 12px; background: var(--bg-elevated); }
+.lat-seg.llm { background: #a78bfa; }
+.lat-seg.tool { background: #34d399; }
+.lat-seg.other { background: #94a3b8; }
+.lat-legend { display: flex; flex-direction: column; }
+.lat-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+.lat-row:last-child { border-bottom: none; }
+.lat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.lat-dot.llm { background: #a78bfa; }
+.lat-dot.tool { background: #34d399; }
+.lat-dot.other { background: #94a3b8; }
+.lat-name { flex: 1; min-width: 0; color: var(--text); }
+.lat-val { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.lat-unit { color: var(--text-3); font-weight: 400; }
+.lat-pct { width: 44px; text-align: right; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.cell-sub { font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+
+.lat-summ { display: flex; flex-direction: column; gap: 2px; text-align: right; }
+/* 单条请求头部的耗时构成 */
+.trace-lat { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; }
+.trace-lat-bar { display: flex; gap: 2px; width: 180px; height: 8px; border-radius: 4px; overflow: hidden; background: var(--bg-elevated); flex-shrink: 0; }
+.trace-lat-part { display: inline-flex; align-items: center; gap: 5px; color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; }

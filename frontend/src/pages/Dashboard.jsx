@@ -77,6 +77,7 @@ export default function Dashboard({ theme = "dark" }) {
   const [nonce, setNonce] = useState(0);
   const [modelStats, setModelStats] = useState([]);
   const [slowest, setSlowest] = useState([]);
+  const [breakdown, setBreakdown] = useState(null);
   const [overview, setOverview] = useState(null);
   const [series, setSeries] = useState([]);
   const [errClusters, setErrClusters] = useState([]);
@@ -87,23 +88,23 @@ export default function Dashboard({ theme = "dark" }) {
       try {
         const project = await ensureProject();
         const params = { hours, project_id: project.id };
-        const [o, t, m, sl, ec] = await Promise.all([
+        const [o, t, m, sl, lb, ec] = await Promise.all([
           api.get("/metrics/overview", { params }),
           api.get("/metrics/timeseries", { params }),
           api.get("/metrics/models", { params }),
           api.get("/metrics/slowest", { params }),
+          api.get("/metrics/latency-breakdown", { params }),
           api.get("/metrics/errors", { params }),
         ]);
         setOverview(o.data);
         setModelStats(m.data);
         setSlowest(sl.data);
+        setBreakdown(lb.data);
         setErrClusters(ec.data);
         setError(null);
         setSeries(t.data.map((p) => ({
           ...p,
           time: new Date(p.bucket).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
-          p50: p.calls ? p.p50_latency_ms : null,
-          p95: p.calls ? p.p95_latency_ms : null,
         })));
       } catch (e) {
         setError(String(e.response?.data?.detail || e.message));
@@ -113,15 +114,6 @@ export default function Dashboard({ theme = "dark" }) {
 
   if (error) return <div className="empty"><Icon name="alert-triangle" size={22} />{t("dash.backendError")}: {error}</div>;
 
-  // 延迟轴统一单位：有秒级数据时全部用秒，避免 "18 s" 和 "0 ms" 混排
-  const latMax = Math.max(1, ...series.map((s) => Math.max(s.p50 || 0, s.p95 || 0)));
-  const latAxis = (v) => {
-    if (latMax >= 1000) {
-      const s = v / 1000;
-      return (s >= 10 ? s.toFixed(0) : Number(s.toFixed(1)).toString()) + " s";
-    }
-    return Math.round(v) + " ms";
-  };
   const gridColor = theme === "light" ? "#e8ecf2" : "#151b26";
   const cursorColor = theme === "light" ? "#d7dce5" : "#273043";
 
@@ -206,19 +198,42 @@ export default function Dashboard({ theme = "dark" }) {
         </div>
 
         <div className="card chart-box">
-          <h3>{t("dash.latencyTrend")}</h3>
-          <div className="sub">{t("dash.latencyTrendSub")}</div>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={series} margin={{ top: 4, right: 10, bottom: 0, left: -6 }}>
-              <CartesianGrid stroke={gridColor} strokeDasharray="4 6" vertical={false} />
-              <XAxis dataKey="time" {...AXIS} tickMargin={8} />
-              <YAxis {...AXIS} width={46} tickFormatter={latAxis} />
-              <Tooltip content={<ChartTip fmt={fmtMs} />} cursor={{ stroke: cursorColor, strokeDasharray: "4 4" }} />
-              <Line type="monotone" dataKey="p50" name="P50" stroke="#a78bfa" strokeWidth={2} dot={false} connectNulls activeDot={{ r: 3.5, strokeWidth: 0 }} />
-              <Line type="monotone" dataKey="p95" name="P95" stroke="#fbbf24" strokeWidth={2} dot={false} connectNulls activeDot={{ r: 3.5, strokeWidth: 0 }} />
-            </LineChart>
-          </ResponsiveContainer>
-          <Legend items={[{ label: "P50", color: "#a78bfa" }, { label: "P95", color: "#fbbf24" }]} />
+          <div className="card-head-row">
+            <div>
+              <h3>{t("dash.latencyBreakdown")}</h3>
+              <div className="sub">{t("dash.latencyBreakdownSub")}</div>
+            </div>
+            {overview && (
+              <div className="lat-summ">
+                <div>{t("dash.avgLatency")} <b className="mono">{fmtMs(overview.avg_latency_ms)}</b></div>
+                <div>P95 <b className="mono">{fmtMs(overview.p95_latency_ms)}</b></div>
+              </div>
+            )}
+          </div>
+          {breakdown && breakdown.traces > 0 && breakdown.parts.some((p) => p.ms > 0) ? (
+            <>
+              <div className="lat-bar">
+                {breakdown.parts.filter((p) => p.pct > 0).map((p) => (
+                  <div key={p.key} className={"lat-seg " + p.key} style={{ width: p.pct + "%" }}
+                    title={t("dash.part." + p.key) + " " + p.pct.toFixed(1) + "%"} />
+                ))}
+              </div>
+              <div className="lat-legend">
+                {breakdown.parts.map((p) => (
+                  <div key={p.key} className="lat-row">
+                    <span className={"lat-dot " + p.key} />
+                    <span className="lat-name">{t("dash.part." + p.key)}</span>
+                    <span className="lat-val mono">
+                      {fmtMs(p.per_trace_ms)}<span className="lat-unit">{t("dash.perTrace")}</span>
+                    </span>
+                    <span className="lat-pct mono">{p.pct.toFixed(0)}%</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="small-empty"><Icon name="clock" size={18} />{t("dash.noSlow")}</div>
+          )}
         </div>
 
         <div className="card chart-box">
@@ -271,7 +286,7 @@ export default function Dashboard({ theme = "dark" }) {
           {modelStats.length ? (
             <table className="table model-table">
               <thead>
-                <tr><th>{t("dash.model")}</th><th className="num">{t("dash.calls")}</th><th className="num">{t("th.tokens")}</th><th className="num">{t("th.avgLatency")}</th><th className="num">{t("th.cost")}</th><th style={{ width: "26%" }}>{t("dash.costShare")}</th></tr>
+                <tr><th>{t("dash.model")}</th><th className="num">{t("dash.calls")}</th><th className="num">{t("th.tokens")}</th><th className="num">{t("dash.latencySpeed")}</th><th className="num">{t("th.cost")}</th><th style={{ width: "26%" }}>{t("dash.costShare")}</th></tr>
               </thead>
               <tbody>
                 {modelStats.map((s) => {
@@ -281,7 +296,10 @@ export default function Dashboard({ theme = "dark" }) {
                       <td style={{ fontWeight: 550 }}>{s.model}</td>
                       <td className="num">{s.calls}</td>
                       <td className="num">{s.total_tokens.toLocaleString()}</td>
-                      <td className="num">{fmtMs(s.avg_latency_ms)}</td>
+                      <td className="num">
+                        <div>{fmtMs(s.avg_latency_ms)}</div>
+                        {s.output_tps > 0 && <div className="cell-sub">{Math.round(s.output_tps)} tok/s</div>}
+                      </td>
                       <td className="num">${s.cost.toFixed(4)}</td>
                       <td>
                         <div style={{ background: "var(--bg-elevated)", borderRadius: 4, height: 8, overflow: "hidden" }}>

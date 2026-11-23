@@ -8,7 +8,16 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..api.deps import team_projects
 from ..models import Span, Trace, User
-from ..schemas import ErrorClusterOut, HistogramBucket, ModelStatOut, OverviewOut, SlowTrace, TimePoint
+from ..schemas import (
+    ErrorClusterOut,
+    HistogramBucket,
+    LatencyBreakdown,
+    LatencyPart,
+    ModelStatOut,
+    OverviewOut,
+    SlowTrace,
+    TimePoint,
+)
 from ..services.security import get_current_user
 
 router = APIRouter(prefix="/api/v1/metrics", tags=["metrics"])
@@ -155,6 +164,7 @@ def model_stats(
             func.coalesce(func.sum(Span.total_tokens), 0).label("total_tokens"),
             func.coalesce(func.sum(Span.cost), 0.0).label("cost"),
             func.coalesce(func.avg(Span.latency_ms), 0).label("avg_latency"),
+            func.coalesce(func.sum(Span.latency_ms), 0).label("total_latency"),
         )
         .join(Trace, Span.trace_id == Trace.id)
         .filter(*filters)
@@ -171,6 +181,7 @@ def model_stats(
             total_tokens=int(r.total_tokens),
             cost=round(float(r.cost), 6),
             avg_latency_ms=round(float(r.avg_latency), 1),
+            output_tps=round(int(r.completion_tokens) / (float(r.total_latency) / 1000), 1) if r.total_latency else 0.0,
         )
         for r in rows
     ]
@@ -205,6 +216,86 @@ def latency_histogram(
         HistogramBucket(label=str(int(lo + i * width)) + "-" + str(int(lo + (i + 1) * width)), count=c)
         for i, c in enumerate(counts)
     ]
+
+
+@router.get("/latency-breakdown", response_model=LatencyBreakdown)
+def latency_breakdown(
+    hours: int = Query(24, ge=1, le=720),
+    project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """耗时构成：延迟花在了 LLM 生成、工具调用还是编排上。
+
+    每个 span 取"独占时间" = 自身时长 - 直接子节点时长之和，这样中间件包装层
+    （时长与内部 LLM 调用相同）不会被重复计入。
+    """
+    since = datetime.now(timezone.utc) - timedelta(hours=hours)
+    filters = [Span.start_time >= since]
+    if project_id:
+        filters.append(Trace.project_id == project_id)
+    if allowed is not None:
+        filters.append(Trace.project_id.in_(allowed))
+
+    limit = 50000
+    rows = (
+        db.query(
+            Span.trace_id, Span.id, Span.parent_span_id, Span.span_type, Span.latency_ms,
+        )
+        .join(Trace, Span.trace_id == Trace.id)
+        .filter(*filters)
+        .order_by(Span.start_time.desc())
+        .limit(limit + 1)
+        .all()
+    )
+    truncated = len(rows) > limit
+    if truncated:
+        rows = rows[:limit]
+
+    by_trace = {}
+    for r in rows:
+        by_trace.setdefault(r.trace_id, []).append(r)
+
+    def kind(span_type):
+        if span_type in ("llm", "embedding"):
+            return "llm"
+        if span_type in ("tool", "retrieval"):
+            return "tool"
+        return "other"
+
+    totals = {"llm": 0.0, "tool": 0.0, "other": 0.0}
+    counts = {"llm": 0, "tool": 0, "other": 0}
+    traces = 0
+    for spans in by_trace.values():
+        # 被截断的 trace 缺少根节点，跳过，避免统计到半条链路
+        if not any(s.parent_span_id is None for s in spans):
+            continue
+        child_sum = {}
+        for s in spans:
+            if s.parent_span_id is not None and s.latency_ms:
+                child_sum[s.parent_span_id] = child_sum.get(s.parent_span_id, 0) + s.latency_ms
+        traces += 1
+        for s in spans:
+            own = max(0.0, (s.latency_ms or 0) - child_sum.get(s.id, 0))
+            k = kind(s.span_type)
+            totals[k] += own
+            if s.latency_ms:
+                counts[k] += 1
+
+    total = sum(totals.values())
+    return LatencyBreakdown(
+        traces=traces,
+        parts=[
+            LatencyPart(
+                key=k, ms=round(totals[k], 1),
+                pct=round(totals[k] / total * 100, 1) if total else 0.0,
+                per_trace_ms=round(totals[k] / traces, 1) if traces else 0.0,
+                spans=counts[k],
+            )
+            for k in ("llm", "tool", "other")
+        ],
+    )
 
 
 @router.get("/slowest", response_model=list[SlowTrace])

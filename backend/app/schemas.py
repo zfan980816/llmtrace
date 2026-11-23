@@ -346,6 +346,20 @@ class ModelStatOut(BaseModel):
     total_tokens: int
     cost: float
     avg_latency_ms: float
+    output_tps: float = 0.0
+
+
+class LatencyPart(BaseModel):
+    key: str
+    ms: float
+    pct: float
+    per_trace_ms: float
+    spans: int
+
+
+class LatencyBreakdown(BaseModel):
+    traces: int
+    parts: list[LatencyPart]
 
 
 class HistogramBucket(BaseModel):

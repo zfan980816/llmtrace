@@ -192,6 +192,29 @@ export default function TraceDetail() {
     return { tree: rows, effLatency };
   }, [trace, collapsed, showWrappers]);
 
+  // 单条请求的耗时构成：独占时间 = 自身时长 - 子节点时长，避免包装层重复计数
+  const traceBreakdown = useMemo(() => {
+    if (!trace) return null;
+    const childSum = {};
+    for (const s of trace.spans) {
+      if (s.parent_span_id && s.latency_ms) {
+        childSum[s.parent_span_id] = (childSum[s.parent_span_id] || 0) + s.latency_ms;
+      }
+    }
+    const tot = { llm: 0, tool: 0, other: 0 };
+    for (const s of trace.spans) {
+      const own = Math.max(0, (s.latency_ms || 0) - (childSum[s.id] || 0));
+      if (s.span_type === "llm" || s.span_type === "embedding") tot.llm += own;
+      else if (s.span_type === "tool" || s.span_type === "retrieval") tot.tool += own;
+      else tot.other += own;
+    }
+    const total = tot.llm + tot.tool + tot.other;
+    return {
+      total,
+      parts: ["llm", "tool", "other"].map((k) => ({ key: k, ms: tot[k], pct: total ? (tot[k] / total) * 100 : 0 })),
+    };
+  }, [trace]);
+
   const toggleNode = (id) => {
     setCollapsed((prev) => {
       const next = new Set(prev);
@@ -303,6 +326,21 @@ export default function TraceDetail() {
               </>
             )}
           </p>
+          {traceBreakdown && traceBreakdown.total > 0 && (
+            <div className="trace-lat">
+              <span className="trace-lat-bar">
+                {traceBreakdown.parts.filter((p) => p.pct > 0).map((p) => (
+                  <span key={p.key} className={"lat-seg " + p.key} style={{ width: p.pct + "%" }} />
+                ))}
+              </span>
+              {traceBreakdown.parts.map((p) => (
+                <span key={p.key} className="trace-lat-part">
+                  <span className={"lat-dot " + p.key} />
+                  {t("dash.part." + p.key)} {fmtLatency(p.ms)}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, position: "relative" }}>
           {shareHint && <span style={{ fontSize: 12, color: "var(--muted)" }}>{shareHint}</span>}
