@@ -99863,3 +99863,7 @@ html[data-theme="light"] .stat-card:hover {
 .slow-lat.slow { color: #f87171; background: color-mix(in srgb, #f87171 12%, transparent); }
 .slow-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
 .slow-time { color: var(--text-3); font-size: 11.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* 模型用量表：窄宽度下不折行 */
+.model-table th, .model-table td { white-space: nowrap; padding-left: 6px; padding-right: 6px; }
+.model-table td:first-child { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }

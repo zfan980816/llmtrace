@@ -13,8 +13,8 @@ const RANGES = [["1h", 1], ["6h", 6], ["24h", 24], ["7d", 168], ["30d", 720]];
 const CARD_DEFS = [
   { key: "total_traces", label: "dash.totalCalls", icon: "activity", color: "#4d8dff", spark: "calls", fmt: (v) => v.toLocaleString() },
   { key: "error_rate", label: "dash.errorRate", icon: "alert-triangle", color: "#f87171", spark: "errors", fmt: (v) => (v * 100).toFixed(1) + "%" },
-  { key: "avg_latency_ms", label: "dash.avgLatency", icon: "clock", color: "#a78bfa", spark: "avg_latency_ms", fmt: (v) => Math.round(v) + " ms" },
-  { key: "p95_latency_ms", label: "dash.p95", icon: "gauge", color: "#fbbf24", spark: null, fmt: (v) => Math.round(v) + " ms" },
+  { key: "avg_latency_ms", label: "dash.avgLatency", icon: "clock", color: "#a78bfa", spark: "avg_latency_ms", fmt: (v) => fmtMs(v) },
+  { key: "p95_latency_ms", label: "dash.p95", icon: "gauge", color: "#fbbf24", spark: null, fmt: (v) => fmtMs(v) },
   { key: "total_tokens", label: "dash.totalTokens", icon: "zap", color: "#38bdf8", spark: "tokens", fmt: (v) => v.toLocaleString() },
   { key: "total_cost", label: "dash.totalCost", icon: "dollar-sign", color: "#34d399", spark: "cost", fmt: (v) => "$" + v.toFixed(4) },
 ];
@@ -39,7 +39,7 @@ function Spark({ data, color }) {
   );
 }
 
-const fmtMs = (ms) => (ms == null ? "—" : ms >= 1000 ? (ms / 1000).toFixed(ms >= 10000 ? 0 : 1) + " s" : Math.round(ms) + " ms");
+const fmtMs = (ms) => (ms == null ? "—" : ms >= 1000 ? (ms / 1000).toFixed(1) + " s" : Math.round(ms) + " ms");
 const latTone = (ms) => (ms < 3000 ? "fast" : ms < 10000 ? "mid" : "slow");
 
 function ChartTip({ active, payload, label, fmt }) {
@@ -113,6 +113,15 @@ export default function Dashboard({ theme = "dark" }) {
 
   if (error) return <div className="empty"><Icon name="alert-triangle" size={22} />{t("dash.backendError")}: {error}</div>;
 
+  // 延迟轴统一单位：有秒级数据时全部用秒，避免 "18 s" 和 "0 ms" 混排
+  const latMax = Math.max(1, ...series.map((s) => Math.max(s.p50 || 0, s.p95 || 0)));
+  const latAxis = (v) => {
+    if (latMax >= 1000) {
+      const s = v / 1000;
+      return (s >= 10 ? s.toFixed(0) : Number(s.toFixed(1)).toString()) + " s";
+    }
+    return Math.round(v) + " ms";
+  };
   const gridColor = theme === "light" ? "#e8ecf2" : "#151b26";
   const cursorColor = theme === "light" ? "#d7dce5" : "#273043";
 
@@ -203,7 +212,7 @@ export default function Dashboard({ theme = "dark" }) {
             <LineChart data={series} margin={{ top: 4, right: 10, bottom: 0, left: -6 }}>
               <CartesianGrid stroke={gridColor} strokeDasharray="4 6" vertical={false} />
               <XAxis dataKey="time" {...AXIS} tickMargin={8} />
-              <YAxis {...AXIS} width={46} tickFormatter={(v) => fmtMs(v)} />
+              <YAxis {...AXIS} width={46} tickFormatter={latAxis} />
               <Tooltip content={<ChartTip fmt={fmtMs} />} cursor={{ stroke: cursorColor, strokeDasharray: "4 4" }} />
               <Line type="monotone" dataKey="p50" name="P50" stroke="#a78bfa" strokeWidth={2} dot={false} connectNulls activeDot={{ r: 3.5, strokeWidth: 0 }} />
               <Line type="monotone" dataKey="p95" name="P95" stroke="#fbbf24" strokeWidth={2} dot={false} connectNulls activeDot={{ r: 3.5, strokeWidth: 0 }} />
@@ -260,7 +269,7 @@ export default function Dashboard({ theme = "dark" }) {
           <h3>{t("dash.modelUsage")}</h3>
           <div className="sub">{t("dash.modelUsageSub")}</div>
           {modelStats.length ? (
-            <table className="table">
+            <table className="table model-table">
               <thead>
                 <tr><th>{t("dash.model")}</th><th className="num">{t("dash.calls")}</th><th className="num">{t("th.tokens")}</th><th className="num">{t("th.avgLatency")}</th><th className="num">{t("th.cost")}</th><th style={{ width: "26%" }}>{t("dash.costShare")}</th></tr>
               </thead>
@@ -272,7 +281,7 @@ export default function Dashboard({ theme = "dark" }) {
                       <td style={{ fontWeight: 550 }}>{s.model}</td>
                       <td className="num">{s.calls}</td>
                       <td className="num">{s.total_tokens.toLocaleString()}</td>
-                      <td className="num">{Math.round(s.avg_latency_ms)} ms</td>
+                      <td className="num">{fmtMs(s.avg_latency_ms)}</td>
                       <td className="num">${s.cost.toFixed(4)}</td>
                       <td>
                         <div style={{ background: "var(--bg-elevated)", borderRadius: 4, height: 8, overflow: "hidden" }}>
