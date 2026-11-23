@@ -235,13 +235,14 @@ def _apply_run(db, project: Project, run: dict, is_create: bool):
     parent_id = uuid.UUID(str(run["parent_run_id"])) if run.get("parent_run_id") else None
     is_root = parent_id is None
 
-    # langgraph: 按名字细分节点类型（graph=agent, model=llm, tools=tool）
+    # langgraph: 按名字细分节点类型（langgraph=agent, tools=tool）。
+    # "model" 只是图里的节点（chain），真正的模型调用是它下面的 ChatXxx run
+    # （run_type=llm）。不能把它也算作一次 LLM 调用，否则调用量翻倍、模型表里
+    # 会多出一行没有模型名也没有 token 的 "unknown"。
     lname = (run.get("name") or "").lower()
     if span_type == "chain":
         if lname == "langgraph":
             span_type = "agent"
-        elif lname == "model":
-            span_type = "llm"
         elif lname == "tools":
             span_type = "tool"
         elif parent_id is not None:
