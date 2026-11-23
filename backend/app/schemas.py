@@ -182,8 +182,19 @@ class TimePoint(BaseModel):
     calls: int
     errors: int
     avg_latency_ms: float
+    p50_latency_ms: float = 0.0
+    p95_latency_ms: float = 0.0
     tokens: int
     cost: float
+
+
+class SlowTrace(BaseModel):
+    id: str
+    name: str
+    latency_ms: int
+    start_time: datetime
+    status: str
+    total_tokens: int = 0
 
 class AlertRuleCreate(BaseModel):
     project_id: UUID

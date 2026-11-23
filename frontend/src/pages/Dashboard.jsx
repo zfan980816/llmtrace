@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart,
+  Area, AreaChart, CartesianGrid, Line, LineChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import api, { ensureProject } from "../api";
@@ -39,16 +39,19 @@ function Spark({ data, color }) {
   );
 }
 
-function ChartTip({ active, payload, label }) {
+const fmtMs = (ms) => (ms == null ? "—" : ms >= 1000 ? (ms / 1000).toFixed(ms >= 10000 ? 0 : 1) + " s" : Math.round(ms) + " ms");
+const latTone = (ms) => (ms < 3000 ? "fast" : ms < 10000 ? "mid" : "slow");
+
+function ChartTip({ active, payload, label, fmt }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="chart-tip">
       <div className="chart-tip-label">{label}</div>
-      {payload.map((p) => (
+      {payload.filter((p) => p.value != null).map((p) => (
         <div key={p.dataKey} className="chart-tip-row">
           <span className="dot" style={{ background: p.color }} />
           <span>{p.name}</span>
-          <b>{typeof p.value === "number" ? p.value.toLocaleString(undefined, { maximumFractionDigits: 4 }) : p.value}</b>
+          <b>{fmt ? fmt(p.value) : typeof p.value === "number" ? p.value.toLocaleString(undefined, { maximumFractionDigits: 4 }) : p.value}</b>
         </div>
       ))}
     </div>
@@ -73,7 +76,7 @@ export default function Dashboard({ theme = "dark" }) {
   const [hours, setHours] = useState(24);
   const [nonce, setNonce] = useState(0);
   const [modelStats, setModelStats] = useState([]);
-  const [histogram, setHistogram] = useState([]);
+  const [slowest, setSlowest] = useState([]);
   const [overview, setOverview] = useState(null);
   const [series, setSeries] = useState([]);
   const [errClusters, setErrClusters] = useState([]);
@@ -84,21 +87,23 @@ export default function Dashboard({ theme = "dark" }) {
       try {
         const project = await ensureProject();
         const params = { hours, project_id: project.id };
-        const [o, t, m, h, ec] = await Promise.all([
+        const [o, t, m, sl, ec] = await Promise.all([
           api.get("/metrics/overview", { params }),
           api.get("/metrics/timeseries", { params }),
           api.get("/metrics/models", { params }),
-          api.get("/metrics/latency-histogram", { params }),
+          api.get("/metrics/slowest", { params }),
           api.get("/metrics/errors", { params }),
         ]);
         setOverview(o.data);
         setModelStats(m.data);
-        setHistogram(h.data);
+        setSlowest(sl.data);
         setErrClusters(ec.data);
         setError(null);
         setSeries(t.data.map((p) => ({
           ...p,
           time: new Date(p.bucket).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+          p50: p.calls ? p.p50_latency_ms : null,
+          p95: p.calls ? p.p95_latency_ms : null,
         })));
       } catch (e) {
         setError(String(e.response?.data?.detail || e.message));
@@ -192,6 +197,44 @@ export default function Dashboard({ theme = "dark" }) {
         </div>
 
         <div className="card chart-box">
+          <h3>{t("dash.latencyTrend")}</h3>
+          <div className="sub">{t("dash.latencyTrendSub")}</div>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={series} margin={{ top: 4, right: 10, bottom: 0, left: -6 }}>
+              <CartesianGrid stroke={gridColor} strokeDasharray="4 6" vertical={false} />
+              <XAxis dataKey="time" {...AXIS} tickMargin={8} />
+              <YAxis {...AXIS} width={46} tickFormatter={(v) => fmtMs(v)} />
+              <Tooltip content={<ChartTip fmt={fmtMs} />} cursor={{ stroke: cursorColor, strokeDasharray: "4 4" }} />
+              <Line type="monotone" dataKey="p50" name="P50" stroke="#a78bfa" strokeWidth={2} dot={false} connectNulls activeDot={{ r: 3.5, strokeWidth: 0 }} />
+              <Line type="monotone" dataKey="p95" name="P95" stroke="#fbbf24" strokeWidth={2} dot={false} connectNulls activeDot={{ r: 3.5, strokeWidth: 0 }} />
+            </LineChart>
+          </ResponsiveContainer>
+          <Legend items={[{ label: "P50", color: "#a78bfa" }, { label: "P95", color: "#fbbf24" }]} />
+        </div>
+
+        <div className="card chart-box">
+          <h3>{t("dash.slowest")}</h3>
+          <div className="sub">{t("dash.slowestSub")} · {hours}h</div>
+          {slowest.length ? (
+            <div className="slow-list">
+              {slowest.map((s) => (
+                <Link key={s.id} to={"/traces/" + s.id} className="slow-row" title={s.name}>
+                  <span className={"slow-lat " + latTone(s.latency_ms)}>
+                    <Icon name="clock" size={11} />{fmtMs(s.latency_ms)}
+                  </span>
+                  <span className="slow-name">{s.name}</span>
+                  <span className="slow-time">
+                    {new Date(s.start_time).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="small-empty"><Icon name="clock" size={18} />{t("dash.noSlow")}</div>
+          )}
+        </div>
+
+        <div className="card chart-box">
           <h3>{t("dash.errorAnalysis")}</h3>
           <div className="sub">{t("dash.errorAnalysisSub")} · {hours}h</div>
           {errClusters.length ? (
@@ -246,19 +289,6 @@ export default function Dashboard({ theme = "dark" }) {
           )}
         </div>
 
-        <div className="card chart-box">
-          <h3>{t("dash.latencyDist")}</h3>
-          <div className="sub">{t("dash.latencyDistSub")}</div>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={histogram} margin={{ top: 4, right: 10, bottom: 0, left: -22 }}>
-              <CartesianGrid stroke={gridColor} strokeDasharray="4 6" vertical={false} />
-              <XAxis dataKey="label" {...AXIS} tickMargin={8} />
-              <YAxis {...AXIS} allowDecimals={false} />
-              <Tooltip content={<ChartTip />} cursor={{ fill: "rgba(91,157,255,0.08)" }} />
-              <Bar dataKey="count" name="条数" fill="#4d8dff" radius={[3, 3, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
       </div>
     </div>
   );

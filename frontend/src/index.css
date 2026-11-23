@@ -99851,3 +99851,15 @@ html[data-theme="light"] .stat-card:hover {
 .attr-list .kv-row:last-child { border-bottom: none; }
 .attr-list .kv-k { width: 180px; flex-shrink: 0; color: var(--text-3); }
 .attr-list .kv-v { flex: 1; min-width: 0; word-break: break-word; white-space: pre-wrap; color: var(--text); }
+
+/* 最慢请求列表 */
+.slow-list { display: flex; flex-direction: column; }
+.slow-row { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--border); color: var(--text); text-decoration: none; font-size: 12.5px; border-radius: 6px; }
+.slow-row:last-child { border-bottom: none; }
+.slow-row:hover { background: var(--bg-elevated); }
+.slow-lat { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 64px; justify-content: center; }
+.slow-lat.fast { color: #34d399; background: color-mix(in srgb, #34d399 12%, transparent); }
+.slow-lat.mid { color: #fbbf24; background: color-mix(in srgb, #fbbf24 12%, transparent); }
+.slow-lat.slow { color: #f87171; background: color-mix(in srgb, #f87171 12%, transparent); }
+.slow-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.slow-time { color: var(--text-3); font-size: 11.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }

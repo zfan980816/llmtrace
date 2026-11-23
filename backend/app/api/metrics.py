@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..api.deps import team_projects
 from ..models import Span, Trace, User
-from ..schemas import ErrorClusterOut, HistogramBucket, ModelStatOut, OverviewOut, TimePoint
+from ..schemas import ErrorClusterOut, HistogramBucket, ModelStatOut, OverviewOut, SlowTrace, TimePoint
 from ..services.security import get_current_user
 
 router = APIRouter(prefix="/api/v1/metrics", tags=["metrics"])
@@ -89,11 +89,21 @@ def timeseries(
     if allowed is not None:
         filters.append(Trace.project_id.in_(allowed))
 
+    if is_sqlite:
+        # sqlite 无 percentile_cont，开发库用均值兜底
+        p50 = func.coalesce(func.avg(Trace.latency_ms), 0).label("p50")
+        p95 = func.coalesce(func.avg(Trace.latency_ms), 0).label("p95")
+    else:
+        p50 = func.coalesce(func.percentile_cont(0.5).within_group(Trace.latency_ms.asc()), 0).label("p50")
+        p95 = func.coalesce(func.percentile_cont(0.95).within_group(Trace.latency_ms.asc()), 0).label("p95")
+
     rows = db.query(
         bucket,
         func.count(Trace.id).label("calls"),
         func.coalesce(func.sum(case((Trace.status == "error", 1), else_=0)), 0).label("errors"),
         func.coalesce(func.avg(Trace.latency_ms), 0).label("avg_latency"),
+        p50,
+        p95,
         func.coalesce(func.sum(Trace.total_tokens), 0).label("tokens"),
         func.coalesce(func.sum(Trace.cost), 0.0).label("cost"),
     ).filter(*filters).group_by(bucket).order_by(bucket).all()
@@ -112,6 +122,8 @@ def timeseries(
             calls=int(r.calls) if r else 0,
             errors=int(r.errors) if r else 0,
             avg_latency_ms=round(float(r.avg_latency), 1) if r else 0.0,
+            p50_latency_ms=round(float(r.p50), 1) if r and r.calls else 0.0,
+            p95_latency_ms=round(float(r.p95), 1) if r and r.calls else 0.0,
             tokens=int(r.tokens) if r else 0,
             cost=round(float(r.cost), 6) if r else 0.0,
         ))
@@ -192,6 +204,39 @@ def latency_histogram(
     return [
         HistogramBucket(label=str(int(lo + i * width)) + "-" + str(int(lo + (i + 1) * width)), count=c)
         for i, c in enumerate(counts)
+    ]
+
+
+@router.get("/slowest", response_model=list[SlowTrace])
+def slowest_traces(
+    hours: int = Query(24, ge=1, le=720),
+    project_id: uuid.UUID | None = None,
+    allowed: list[uuid.UUID] | None = Depends(team_projects),
+    limit: int = Query(5, ge=1, le=20),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """所选时间内最慢的 trace，用于定位瓶颈。"""
+    since = datetime.now(timezone.utc) - timedelta(hours=hours)
+    filters = [Trace.start_time >= since, Trace.latency_ms.isnot(None)]
+    if project_id:
+        filters.append(Trace.project_id == project_id)
+    if allowed is not None:
+        filters.append(Trace.project_id.in_(allowed))
+    rows = (
+        db.query(Trace)
+        .filter(*filters)
+        .order_by(Trace.latency_ms.desc())
+        .limit(limit)
+        .all()
+    )
+    return [
+        SlowTrace(
+            id=str(r.id), name=r.name, latency_ms=int(r.latency_ms),
+            start_time=r.start_time, status=r.status,
+            total_tokens=int(r.total_tokens or 0),
+        )
+        for r in rows
     ]
 
 

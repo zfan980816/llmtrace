@@ -113,8 +113,11 @@ const DICT = {
   "dash.modelUsageSub": ["按模型统计调用 / Token / 成本", "Calls / tokens / cost by model"],
   "dash.model": ["模型", "Model"],
   "dash.costShare": ["成本占比", "Cost share"],
-  "dash.latencyDist": ["延迟分布", "Latency distribution"],
-  "dash.latencyDistSub": ["Trace 延迟直方图", "Trace latency histogram"],
+  "dash.latencyTrend": ["延迟趋势", "Latency trend"],
+  "dash.latencyTrendSub": ["每小时 P50 / P95 延迟", "P50 / P95 latency per hour"],
+  "dash.slowest": ["最慢请求", "Slowest traces"],
+  "dash.slowestSub": ["点击查看链路详情", "Click to open the trace"],
+  "dash.noSlow": ["所选时间范围内没有请求", "No traces in this range"],
   "dash.backendError": ["无法连接后端", "Cannot reach backend"],
 
   // ---- TraceDetail ----
