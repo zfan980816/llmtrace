@@ -99823,3 +99823,15 @@ html[data-theme="light"] .stat-card:hover {
 .msg-copy:hover { color: var(--text); background: var(--bg-elevated); }
 .tc-arg { display: flex; gap: 10px; padding: 3px 0; align-items: baseline; }
 .tc-val { white-space: pre-wrap; word-break: break-word; }
+
+.detail-desc { margin: 8px 0 0; font-size: 12.5px; color: var(--text-3); }
+.tree-io-preview { margin-left: 8px; font-size: 11.5px; color: var(--text-3); font-family: var(--mono, monospace); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.fb-add { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 12.5px; border: 1px dashed var(--border); background: transparent; color: var(--text-2); cursor: pointer; transition: border-color .15s, color .15s; }
+.fb-add:hover { border-color: var(--accent, #6366f1); color: var(--text); }
+.fb-form { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--bg-elevated); display: flex; flex-direction: column; gap: 8px; }
+.fb-score-row { display: flex; gap: 8px; }
+.fb-pick { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; border-radius: 8px; font-size: 12.5px; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-2); }
+.fb-pick.up.active { border-color: var(--success); color: var(--success); background: color-mix(in srgb, var(--success) 8%, transparent); }
+.fb-pick.down.active { border-color: var(--danger); color: var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); }
+.fb-form textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-inset, transparent); color: var(--text); padding: 8px 10px; font-size: 12.5px; resize: vertical; }
+.fb-form-actions { display: flex; gap: 8px; justify-content: flex-end; }

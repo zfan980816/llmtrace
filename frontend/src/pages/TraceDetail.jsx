@@ -21,6 +21,20 @@ const TYPE_META = {
   chain: { icon: "git-branch", color: "#64748b", label: "链" },
 };
 
+// 常见工具说明：让 trace 里的 ls / glob 等工具名一眼可读
+const TOOL_DOCS = {
+  ls: ["列出目录下的文件", "List files in a directory"],
+  glob: ["按模式匹配查找文件，如 *.py", "Find files matching a glob pattern"],
+  grep: ["在文件内容中搜索文本", "Search text in file contents"],
+  read_file: ["读取文件内容", "Read a file"],
+  write_file: ["写入文件", "Write a file"],
+  edit_file: ["编辑文件内容", "Edit a file"],
+  task: ["派发子任务给子代理执行", "Dispatch a subtask to a sub-agent"],
+  write_todos: ["维护任务清单", "Maintain a todo list"],
+  web_search: ["搜索网页", "Search the web"],
+  python_repl: ["执行 Python 代码", "Run Python code"],
+};
+
 function fmtLatency(ms) {
   if (ms == null) return "—";
   return ms >= 1000 ? (ms / 1000).toFixed(2) + " s" : ms + " ms";
@@ -62,6 +76,8 @@ export default function TraceDetail() {
   const [fbs, setFbs] = useState([]);
 
   const [fbBusy, setFbBusy] = useState(false);
+  const [fbFormOpen, setFbFormOpen] = useState(false);
+  const [fbScore, setFbScore] = useState(1);
   const [shareHint, setShareHint] = useState(null);
   const [fbDraft, setFbDraft] = useState("");
 
@@ -74,7 +90,7 @@ export default function TraceDetail() {
         setSelected((root || r.data.spans[0] || {}).id || null);
         const sel0 = root || r.data.spans[0];
         const hasMsgs = sel0 && (normalizeMessages(sel0.input) || normalizeMessages(sel0.output));
-        setTab(hasMsgs && hasMsgs.length ? "messages" : sel0?.input != null ? "input" : "feedback");
+        setTab(hasMsgs && hasMsgs.length ? "input" : sel0?.input != null ? "input" : "feedback");
       } catch (e) {
         setError(String(e.response?.data?.detail || e.message));
         return;
@@ -86,11 +102,12 @@ export default function TraceDetail() {
     })();
   }, [id]);
 
-  const submitFeedback = async (score) => {
+  const submitFeedback = async () => {
     setFbBusy(true);
     try {
-      await addFeedback({ trace_id: id, score, comment: fbDraft || null });
+      await addFeedback({ trace_id: id, score: fbScore, comment: fbDraft || null });
       setFbDraft("");
+      setFbFormOpen(false);
       const r = await listFeedback(id);
       setFbs(r.data);
     } catch { /* ignore */ }
@@ -203,6 +220,24 @@ export default function TraceDetail() {
     return [...inMsgs, ...outMsgs];
   })();
   const chatText = sel.input != null && typeof sel.input !== "object";
+  const inPreview = (v, max = 34) => {
+    if (v == null) return null;
+    // tools 节点的 input 是 tool_calls 数组：直接显示被调用的工具名
+    const callList = Array.isArray(v) ? v
+      : (typeof v === "object" && Object.keys(v).length === 1 && Array.isArray(Object.values(v)[0]) ? Object.values(v)[0] : null);
+    if (callList) {
+      const names = callList.map((x) => x?.name || x?.function?.name).filter(Boolean);
+      if (names.length) return names.join(", ");
+    }
+    if (typeof v !== "object") return null;
+    const parts = Object.entries(v).slice(0, 2).map(([k, val]) => {
+      const s = typeof val === "string" ? val : JSON.stringify(val);
+      return k + "=" + (s.length > 18 ? s.slice(0, 18) + "…" : s);
+    });
+    if (!parts.length) return null;
+    const s = parts.join(" ");
+    return s.length > max ? s.slice(0, max) + "…" : s;
+  };
   const selTotalTokens = (sel.prompt_tokens || 0) + (sel.completion_tokens || 0);
 
   const TABS = [
@@ -291,6 +326,10 @@ export default function TraceDetail() {
                       <Icon name={meta.icon} size={13} />
                     </span>
                     <span className="tree-name" title={s.name}>{s.name}</span>
+                    {s.span_type === "tool" && (() => {
+                      const pv = inPreview(s.input);
+                      return pv ? <span className="tree-io-preview">{pv}</span> : null;
+                    })()}
                   </div>
                   <div className="tree-line2">
                     <span className={"lat-chip " + latClass(s.latency_ms)}><Icon name="clock" size={10} /> {fmtLatency(effLatency.get(s.id) ?? s.latency_ms)}</span>
@@ -318,6 +357,9 @@ export default function TraceDetail() {
               {selTotalTokens > 0 && <span className="chip">tokens {selTotalTokens.toLocaleString()}</span>}
               {sel.cost > 0 && <span className="chip">${sel.cost.toFixed(5)}</span>}
             </div>
+            {sel.span_type === "tool" && TOOL_DOCS[sel.name] && (
+              <p className="detail-desc">{TOOL_DOCS[sel.name][lang === "en" ? 1 : 0]}</p>
+            )}
 
             {sel.error && (
               <div className="error-banner">
@@ -334,20 +376,32 @@ export default function TraceDetail() {
 
             {tab === "feedback" && (
               <div className="feedback-pane">
-                <div className="fb-actions">
-                  <button className="fb-btn up" disabled={fbBusy} onClick={() => submitFeedback(1)}>
-                    <Icon name="check" size={13} /> {t("fb.accurate")} ({upCount})
+                {!fbFormOpen ? (
+                  <button className="fb-add" onClick={() => setFbFormOpen(true)}>
+                    <Icon name="plus" size={13} /> {t("fb.add")}
                   </button>
-                  <button className="fb-btn down" disabled={fbBusy} onClick={() => submitFeedback(-1)}>
-                    <Icon name="x" size={13} /> {t("fb.wrong")} ({downCount})
-                  </button>
-                </div>
-                <textarea
-                  placeholder={t("fb.placeholder")}
-                  value={fbDraft}
-                  onChange={(e) => setFbDraft(e.target.value)}
-                  rows={2}
-                />
+                ) : (
+                  <div className="fb-form">
+                    <div className="fb-score-row">
+                      <button type="button" className={"fb-pick up" + (fbScore === 1 ? " active" : "")} onClick={() => setFbScore(1)}>
+                        <Icon name="check" size={13} /> {t("fb.correct")}
+                      </button>
+                      <button type="button" className={"fb-pick down" + (fbScore === -1 ? " active" : "")} onClick={() => setFbScore(-1)}>
+                        <Icon name="x" size={13} /> {t("fb.incorrect")}
+                      </button>
+                    </div>
+                    <textarea
+                      placeholder={t("fb.placeholder")}
+                      value={fbDraft}
+                      onChange={(e) => setFbDraft(e.target.value)}
+                      rows={2}
+                    />
+                    <div className="fb-form-actions">
+                      <button className="btn sm" disabled={fbBusy} onClick={submitFeedback}>{t("fb.submit")}</button>
+                      <button className="btn sm ghost" onClick={() => { setFbFormOpen(false); setFbDraft(""); }}>{t("fb.cancel")}</button>
+                    </div>
+                  </div>
+                )}
                 <div className="fb-list">
                   {fbs.map((f) => (
                     <div key={f.id} className={"fb-item " + (f.score === 1 ? "fb-up" : "fb-down")}>
@@ -363,7 +417,7 @@ export default function TraceDetail() {
                       </button>
                     </div>
                   ))}
-                  {!fbs.length && <div className="muted small" style={{ padding: "6px 2px" }}>{t("fb.empty")}</div>}
+                  {!fbs.length && !fbFormOpen && <div className="muted small" style={{ padding: "6px 2px" }}>{t("fb.empty")}</div>}
                 </div>
               </div>
             )}
