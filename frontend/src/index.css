@@ -99895,3 +99895,6 @@ html[data-theme="light"] .stat-card:hover {
 .trace-lat { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; }
 .trace-lat-bar { display: flex; gap: 2px; width: 180px; height: 8px; border-radius: 4px; overflow: hidden; background: var(--bg-elevated); flex-shrink: 0; }
 .trace-lat-part { display: inline-flex; align-items: center; gap: 5px; color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.updated-at { font-size: 12px; color: var(--text-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.auto-toggle { margin: 0 2px; white-space: nowrap; }

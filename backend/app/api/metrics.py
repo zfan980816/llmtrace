@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -331,6 +332,52 @@ def slowest_traces(
     ]
 
 
+_STATUS_PREFIXES = ("code: ", "status: ", "status_code: ", "status_code=", "HTTP ")
+
+
+def _keep_status_code(m):
+    before = m.string[max(0, m.start() - 16):m.start()]
+    return m.group(0) if before.endswith(_STATUS_PREFIXES) else "<n>"
+
+
+# 错误聚类前抹掉易变部分：路径、UUID、行号、长 ID 等，只保留错误类型和结构
+_ERROR_NOISE = (
+    (re.compile(r"\b(?:https?|wss?)://[^\s\"'<>]+"), "<url>"),
+    (re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"), "<uuid>"),
+    (re.compile(r"(?<!\w)[A-Za-z]:[\\/][^\s\"']*"), "<path>"),
+    (re.compile(r"(?<![\w:])/(?:[\w.\-]+/)+[\w.\-]*"), "<path>"),
+    (re.compile(r"0x[0-9a-fA-F]+"), "<addr>"),
+    (re.compile(r"\b[A-Za-z0-9_\-]{24,}\b"), "<id>"),
+    # 行号、耗时等数字归一；HTTP 状态码（code: 429 / HTTP 500）保留，它们区分错误类别
+    (re.compile(r"\d+"), _keep_status_code),
+)
+_PLACEHOLDER = re.compile(r"<(?:url|uuid|path|addr|id|n)>")
+_TRACEBACK = "Traceback (most recent call last)"
+
+
+def _error_head(text):
+    """只取异常本身，不带调用栈：栈里的路径、行号会随应用版本变，对聚类没用。
+    LangGraph 把异常写在栈前面，Python 标准格式写在最后。"""
+    s = (text or "").strip()
+    if _TRACEBACK not in s:
+        return s
+    head = s.split(_TRACEBACK, 1)[0].strip()
+    return head or s.rsplit("\n", 1)[-1].strip()
+
+
+def _error_signature(head):
+    s = head or ""
+    for rx, rep in _ERROR_NOISE:
+        s = rx.sub(rep, s)
+    return re.sub(r"\s+", " ", s).strip()[:160] or "（未记录错误详情）"
+
+
+def _cluster_search(sig):
+    """从签名里挑最长的一段字面量，跳到 trace 列表时用它搜索，能把整类错误搜出来。"""
+    tokens = [t for seg in _PLACEHOLDER.split(sig) for t in seg.split() if "%" not in t]
+    return max(tokens, key=len, default="")
+
+
 @router.get("/errors", response_model=list[ErrorClusterOut])
 def error_clusters(
     hours: int = Query(24, ge=1, le=720),
@@ -340,7 +387,7 @@ def error_clusters(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """错误聚类 Top N：按 error 文本聚合失败 trace。"""
+    """错误聚类 Top N：按归一化后的异常行聚合失败的 trace，展示最近一条的异常行。"""
     since = datetime.now(timezone.utc) - timedelta(hours=hours)
     q = db.query(Trace).filter(Trace.status == "error", Trace.start_time >= since)
     if project_id:
@@ -350,13 +397,16 @@ def error_clusters(
     rows = q.order_by(Trace.start_time.desc()).limit(2000).all()
     clusters: dict[str, dict] = {}
     for t in rows:
-        key = (t.error or "（未记录错误详情）")[:160]
+        head = _error_head(t.error)
+        key = _error_signature(head)
         c = clusters.setdefault(key, {"count": 0, "last_seen": t.start_time,
-                                      "sample_trace_id": t.id, "sample_name": t.name})
+                                      "sample_trace_id": t.id, "sample_name": t.name,
+                                      "sample": head or "（未记录错误详情）"})
         c["count"] += 1
     items = sorted(clusters.items(), key=lambda kv: kv[1]["count"], reverse=True)[:top]
     return [
-        ErrorClusterOut(error=k, count=v["count"], last_seen=v["last_seen"],
-                        sample_trace_id=v["sample_trace_id"], sample_name=v["sample_name"])
+        ErrorClusterOut(error=v["sample"], count=v["count"], last_seen=v["last_seen"],
+                        sample_trace_id=v["sample_trace_id"], sample_name=v["sample_name"],
+                        search=_cluster_search(k) or None)
         for k, v in items
     ]

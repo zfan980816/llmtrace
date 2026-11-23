@@ -92,6 +92,9 @@ const DICT = {
   "spanType.chain": ["链", "Chain"],
   // ---- Dashboard ----
   "dash.refresh": ["刷新", "Refresh"],
+  "dash.autoRefresh": ["自动刷新", "Auto-refresh"],
+  "dash.autoRefreshHint": ["每分钟自动更新；切到其他标签页时暂停", "Refreshes every minute; paused while the tab is hidden"],
+  "dash.updatedAt": ["更新于 {time}", "Updated {time}"],
   "dash.totalCalls": ["总调用数", "Total calls"],
   "dash.errorRate": ["错误率", "Error rate"],
   "dash.avgLatency": ["平均延迟", "Avg latency"],

@@ -165,6 +165,7 @@ class ErrorClusterOut(BaseModel):
     last_seen: datetime
     sample_trace_id: Optional[UUID] = None
     sample_name: Optional[str] = None
+    search: Optional[str] = None
 
 
 class OverviewOut(BaseModel):

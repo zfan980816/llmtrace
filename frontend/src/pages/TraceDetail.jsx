@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import api, { createShareLink } from "../api";
 import { addFeedback, listFeedback, deleteFeedback } from "../feedbackApi";
 import Icon from "../components/Icon";
@@ -79,6 +79,7 @@ export default function TraceDetail() {
   const { id } = useParams();
   const [trace, setTrace] = useState(null);
   const [selected, setSelected] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState("input");
   const [showWrappers, setShowWrappers] = useState(false);
   const [error, setError] = useState(null);
@@ -97,8 +98,11 @@ export default function TraceDetail() {
         const r = await api.get("/traces/" + id);
         setTrace(r.data);
         const root = r.data.spans.find((s) => !s.parent_span_id);
-        setSelected((root || r.data.spans[0] || {}).id || null);
-        const sel0 = root || r.data.spans[0];
+        // 支持用 ?span=<id> 直接打开某个环节，方便把链接发给同事
+        const wanted = searchParams.get("span");
+        const first = (wanted && r.data.spans.find((s) => s.id === wanted)) || root || r.data.spans[0] || {};
+        setSelected(first.id || null);
+        const sel0 = first;
         const hasMsgs = sel0 && (normalizeMessages(sel0.input) || normalizeMessages(sel0.output));
         setTab(hasMsgs && hasMsgs.length ? "input" : sel0?.input != null ? "input" : "feedback");
       } catch (e) {
@@ -214,6 +218,12 @@ export default function TraceDetail() {
       parts: ["llm", "tool", "other"].map((k) => ({ key: k, ms: tot[k], pct: total ? (tot[k] / total) * 100 : 0 })),
     };
   }, [trace]);
+
+  const selectSpan = (sid) => {
+    setSelected(sid);
+    // 用 replace 而不是 push：切换环节不产生历史记录，返回键仍然回到列表
+    setSearchParams({ span: sid }, { replace: true });
+  };
 
   const toggleNode = (id) => {
     setCollapsed((prev) => {
@@ -366,7 +376,7 @@ export default function TraceDetail() {
                 key={s.id}
                 className={"tree-row two-line" + (s.id === selected ? " selected" : "") + (s.status === "error" ? " errored" : "")}
                 style={{ paddingLeft: 8 + depth * 18 }}
-                onClick={() => setSelected(s.id)}
+                onClick={() => selectSpan(s.id)}
               >
                 <button
                   className={"tree-caret" + (expandable ? "" : " invisible")}

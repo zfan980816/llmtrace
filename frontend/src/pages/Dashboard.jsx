@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Area, AreaChart, CartesianGrid, Line, LineChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
@@ -74,7 +74,8 @@ function Legend({ items }) {
 export default function Dashboard({ theme = "dark" }) {
   const lang = useLang();
   const [hours, setHours] = useState(24);
-  const [nonce, setNonce] = useState(0);
+  const [auto, setAuto] = useState(() => localStorage.getItem("llmtrace_autorefresh") !== "0");
+  const [updatedAt, setUpdatedAt] = useState(null);
   const [modelStats, setModelStats] = useState([]);
   const [slowest, setSlowest] = useState([]);
   const [breakdown, setBreakdown] = useState(null);
@@ -83,34 +84,50 @@ export default function Dashboard({ theme = "dark" }) {
   const [errClusters, setErrClusters] = useState([]);
   const [error, setError] = useState(null);
 
+  const load = useCallback(async () => {
+    try {
+      const project = await ensureProject();
+      const params = { hours, project_id: project.id };
+      const [o, t, m, sl, lb, ec] = await Promise.all([
+        api.get("/metrics/overview", { params }),
+        api.get("/metrics/timeseries", { params }),
+        api.get("/metrics/models", { params }),
+        api.get("/metrics/slowest", { params }),
+        api.get("/metrics/latency-breakdown", { params }),
+        api.get("/metrics/errors", { params }),
+      ]);
+      setOverview(o.data);
+      setModelStats(m.data);
+      setSlowest(sl.data);
+      setBreakdown(lb.data);
+      setErrClusters(ec.data);
+      setError(null);
+      setUpdatedAt(Date.now());
+      setSeries(t.data.map((p) => ({
+        ...p,
+        time: new Date(p.bucket).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+      })));
+    } catch (e) {
+      setError(String(e.response?.data?.detail || e.message));
+    }
+  }, [hours]);
+
+  useEffect(() => { load(); }, [load]);
+
+  // 自动刷新：每分钟拉一次；页面切到后台时暂停，避免无人看的时候白跑查询
   useEffect(() => {
-    (async () => {
-      try {
-        const project = await ensureProject();
-        const params = { hours, project_id: project.id };
-        const [o, t, m, sl, lb, ec] = await Promise.all([
-          api.get("/metrics/overview", { params }),
-          api.get("/metrics/timeseries", { params }),
-          api.get("/metrics/models", { params }),
-          api.get("/metrics/slowest", { params }),
-          api.get("/metrics/latency-breakdown", { params }),
-          api.get("/metrics/errors", { params }),
-        ]);
-        setOverview(o.data);
-        setModelStats(m.data);
-        setSlowest(sl.data);
-        setBreakdown(lb.data);
-        setErrClusters(ec.data);
-        setError(null);
-        setSeries(t.data.map((p) => ({
-          ...p,
-          time: new Date(p.bucket).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
-        })));
-      } catch (e) {
-        setError(String(e.response?.data?.detail || e.message));
-      }
-    })();
-  }, [hours, nonce]);
+    if (!auto) return undefined;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") load();
+    }, 60000);
+    return () => clearInterval(id);
+  }, [auto, load]);
+
+  const toggleAuto = () => {
+    const next = !auto;
+    localStorage.setItem("llmtrace_autorefresh", next ? "1" : "0");
+    setAuto(next);
+  };
 
   if (error) return <div className="empty"><Icon name="alert-triangle" size={22} />{t("dash.backendError")}: {error}</div>;
 
@@ -129,7 +146,16 @@ export default function Dashboard({ theme = "dark" }) {
               </button>
             ))}
           </div>
-          <button className="btn btn-ghost" onClick={() => setNonce((n) => n + 1)}>
+          {updatedAt && (
+            <span className="updated-at">
+              {t("dash.updatedAt", { time: new Date(updatedAt).toLocaleTimeString("zh-CN") })}
+            </span>
+          )}
+          <label className="wrapper-toggle auto-toggle" title={t("dash.autoRefreshHint")}>
+            <input type="checkbox" checked={auto} onChange={toggleAuto} />
+            {t("dash.autoRefresh")}
+          </label>
+          <button className="btn btn-ghost" onClick={load}>
             <Icon name="refresh" size={13} /> {t("dash.refresh")}
           </button>
         </div>
@@ -264,7 +290,7 @@ export default function Dashboard({ theme = "dark" }) {
           {errClusters.length ? (
             <div className="err-clusters">
               {errClusters.map((c, i) => (
-                <Link key={i} to={"/traces?q=" + encodeURIComponent(c.error.slice(0, 60)) + "&status=error"}
+                <Link key={i} to={"/traces?q=" + encodeURIComponent(c.search || c.error.slice(0, 60)) + "&status=error"}
                   className="err-cluster-row" title={c.error}>
                   <span className="err-count">{c.count}×</span>
                   <span className="err-text mono">{c.error.length > 90 ? c.error.slice(0, 90) + "…" : c.error}</span>
